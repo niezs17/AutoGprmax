@@ -100,7 +100,8 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
     else:
         cavity_radium = []
         cavity_centers = []
-        for _ in range(air_cavity_num_all + water_cavity_num_all):
+        cavity_num = 0
+        while cavity_num < (air_cavity_num_all + water_cavity_num_all):
             cavity_radium.append(random.uniform(0.02, 0.20))        # 随机生成空洞半径
             # print(cavity_radium[-1])
             cavity_region = {'x': [soil_base_space['x1'] + np.max(cavity_radium),
@@ -111,9 +112,10 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
             cavity_centers.append((x, y))
             # Check distance from previous cavities
             if all(not check_distance((x, y), center, cavity_radium[-2:]) for center in cavity_centers[:-1]):
-                cavity_type = 'pec' if _ < air_cavity_num_all else 'water'
+                cavity_type = 'free_space' if cavity_num < air_cavity_num_all else 'water'
                 new_inst.append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
                                                           cavity_radium[-1], cavity_type))
+                cavity_num += 1
             else:
                 # Adjusting cavity radius or position if necessary
                 # Or handle overlapping cavities
@@ -121,6 +123,9 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
         return ''.join(new_inst)
 
 
-# print(random_cavity({'x1': 0, 'y1': 0, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025}, 3, 0))
+if __name__ == '__main__':
+    for _ in range(0,10):
+        print(random_cavity({'x1': 0, 'y1': 0, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025}, 3, 0))
+        print()
 
 

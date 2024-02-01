@@ -28,15 +28,16 @@ air_cavity_num = 3
 soil_base_space = {'x1': 0, 'y1': 0, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025}
 # 加上缺损
 
-for _ in range(1, generate_num + 1, 1):
-    TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)
-    # 生成Bscan图像
-    generate_bscan(
-        text_in=TEXT_IN,
-        generate=1,
-        geometry=0,
-        ascan_times=60,
-        figure_number=_,
-        time_window=36e-9,
-        info=f"air_{air_cavity_num}_water_{water_cavity_num}"
-    )
+if __name__ == '__main__':
+    for _ in range(1, generate_num + 1, 1):
+        TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)
+        # 生成Bscan图像
+        generate_bscan(
+            text_in=TEXT_IN,
+            generate=1,
+            geometry=0,
+            ascan_times=60,
+            figure_number=_,
+            time_window=36e-9,
+            info=f"air_{air_cavity_num}_water_{water_cavity_num}"
+        )
