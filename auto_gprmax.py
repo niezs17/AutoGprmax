@@ -86,6 +86,12 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
     :return: 完整in文件指令
     """
     new_inst = []
+    # 对路基空间范围修正，防止生成空洞与PML相交
+    soil_base_space['x1'] += 0.1
+    soil_base_space['y1'] += 0.1
+    soil_base_space['x2'] -= 0.1
+    soil_base_space['y2'] -= 0.1
+    # 如果生成数量过多，则默认只生成一个充气型空洞，位于路基正中间
     if air_cavity_num_all + water_cavity_num_all > 3:
         cavity_x = (soil_base_space['x1'] + soil_base_space['x2']) / 2.0
         cavity_y = (soil_base_space['y1'] + soil_base_space['y2']) / 2.0
@@ -96,7 +102,6 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
         print("Too many cavities!\n "
               "Automatically generate an cylinder air cavity with the center of soil base, r = 0.2")
         return ''.join(new_inst)
-    # 随机生成空洞大小，先处理充气空洞
     else:
         cavity_radium = []
         cavity_centers = []
