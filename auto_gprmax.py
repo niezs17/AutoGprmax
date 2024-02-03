@@ -4,27 +4,29 @@ from gprMax.gprMax import api
 from tools.outputfiles_merge import get_output_data, merge_files
 from tools.plot_Bscan import normalized_mpl_plot
 import random
+# import cv2
 
 
 def check_distance(center1, center2, radium):
     return np.linalg.norm(np.array(center1) - np.array(center2)) < np.sum(radium)
 
 
-def generate_cavity_center(region):
-    x_center = random.uniform(region['x'][0], region['x'][1])
-    y_center = random.uniform(region['y'][0], region['y'][1])
-    return x_center, y_center
+def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
+    # 待选取的形状
+    shape = ['box', 'cylinder']
+    random_shape = random.choice(shape)
+    if random_shape == 'box':
+        return f"#{random_shape}: {round(x-r,2)} {round(y-r,2)} {z1} " \
+                f"{round(x+r,2)} {round(y+r,2)} {z2} {cavity_type}\n"
+    else:
+        return f"#{random_shape}: {round(x,2)} {round(y,2)} {z1} " \
+                f"{round(x,2)} {round(y,2)} {z2} {round(r,2)} {cavity_type}\n"
 
 
-def create_cavity_instruction(x, y, z1, z2, radium, cavity_type):
-    return f"#cylinder: {round(x,2)} {round(y,2)} {z1} " \
-           f"{round(x,2)} {round(y,2)} {z2} {round(radium,2)} {cavity_type}\n"
-
-
-def generate_bscan(text_in, generate, geometry, ascan_times, figure_number, time_window, info):
+def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, time_window, info):
     """
     :param text_in:    不带几何建模指令的输入代码(str)
-    :param generate:        是否重建Bscan
+    :param regenerate:        是否重建Bscan
     :param geometry:        是否生成几何建模
                 GEN = 1, GEO = 0      重新合成BScan, 生成图像, 不生成几何建模
                 GEN = 0, GEO = 0      不合成Bscan, 生成图像, 不生成几何建模
@@ -36,44 +38,40 @@ def generate_bscan(text_in, generate, geometry, ascan_times, figure_number, time
     :param info:            生成图像基本信息 格式: air_x_water_y(x表示充气空洞数量，y表示充水空洞数量)
     :return None
     """
-    if generate:
-        # 生成输入文件
-        in_file_name = f"./text_in/figure{str(figure_number)}_{info}/Ascan.in"
-        # 设置gprMax模拟的输入文件路径
-        fil_in = os.path.join(in_file_name)
-        if not os.path.exists(f"./text_in/figure{str(figure_number)}_{info}"):
-            os.makedirs(f"./text_in/figure{str(figure_number)}_{info}")
-        f = open(in_file_name, 'w')
-        if geometry:
-            # 从头写入不带几何设置命令的in文件, 只执行1次，因为目的仅为得到建模图像，此时不需要merge
-            f.writelines(text_in)
-            f.writelines("#geometry_view: 0 0 0 2.00 2.00 0.01 0.01 0.01 0.01 basic n \n")
-            f.close()
-            api(fil_in, n=1, geometry_only=False)
-        else:
-            f.writelines(text_in)
-            f.close()
-            api(fil_in, n=ascan_times, geometry_only=False)  # A-scan 60 times
-            # 用模拟出的A-Scan条数合并生成B-Scan图像(注意，这里的文件路径只能从AScan停止， 不能带数字，不能带后缀)
-            merge_files(f"./text_in/figure{str(figure_number)}_{info}/Ascan", removefiles=True)
-        print("generating succeed")
-    else:
-        print("skipping the generate stage")
+    figure_path = f"./text_in/basic_{info}_{figure_number}"
+    in_file_name = f"{figure_path}/Ascan.in"
+    text_geo = "#geometry_view: 0 0 0 2.00 2.00 0.0025 0.0025 0.0025 0.0025 basic n \n"
 
-    if geometry:
-        if generate:
-            print("saving succeed")
-            print("looking *.out/*.in files in \'figure_x\'")
-            print("looking *.vti/*.vtp files in \'figure_x\'")
+    # 创建目录
+    if not os.path.exists(figure_path):
+        os.makedirs(figure_path)
+
+    # 处理生成逻辑
+    if regenerate:
+        if geometry:
+            with open(in_file_name, 'w') as f:
+                # 处理几何建模 在原有文本基础上加一行
+                f.write(text_in)
+                f.write(text_geo)
+                f.close()
+                api(in_file_name, n=1, geometry_only=True)
         else:
-            print("nothing happened")
-    else:
-        # 提取输出数据
-        out_file_name = f"./text_in/figure{str(figure_number)}_{info}/Ascan_merged.out"  # 合并后文件名
+            # 删除最后一行，并在原有in文件基础上扫描n次
+            with open(in_file_name, 'r') as f:
+                lines = f.readlines()[:-1]
+                f.close()
+            with open(in_file_name, 'w') as f:
+                f.writelines(lines)
+                f.close()
+            api(in_file_name, n=ascan_times, geometry_only=False)
+            merge_files(f"{figure_path}/Ascan", removefiles=True)
+        print("Process completed.")
+    if (regenerate and not geometry) or (not regenerate):
+        out_file_name = f"{figure_path}/Ascan_merged.out"
         outputdata, dt = get_output_data(out_file_name, 1, 'Ez')
         plt = normalized_mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window)
-        plt.savefig(f"./scan_out/Bscan{str(figure_number)}_{info}.jpg")
-        print(f"figure_{str(figure_number)}_{info} saving succeed")
+        plt.savefig(f"./scan_out/bscan_{info}_{figure_number}.jpg")
+        print(f"{info}_{figure_number} saving succeeded.")
         print("looking *.out/*.in files in \'figure_x\'")
         print("looking *.jpg files in \'scan_out\'")
 
@@ -113,7 +111,8 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
                                    soil_base_space['x2'] - np.max(cavity_radium)],
                              'y': [soil_base_space['y1'] + np.max(cavity_radium),
                                    soil_base_space['y2'] - np.max(cavity_radium)]}
-            x, y = generate_cavity_center(cavity_region)
+            x = random.uniform(cavity_region['x'][0], cavity_region['x'][1])
+            y = random.uniform(cavity_region['y'][0], cavity_region['y'][1])
             cavity_centers.append((x, y))
             # Check distance from previous cavities
             if all(not check_distance((x, y), center, cavity_radium[-2:]) for center in cavity_centers[:-1]):
@@ -129,8 +128,8 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
 
 
 if __name__ == '__main__':
-    for _ in range(0,10):
-        print(random_cavity({'x1': 0, 'y1': 0, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025}, 3, 0))
+    for _ in range(0, 10):
+        print(random_cavity({'x1': 0, 'y1': 0, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025}, 2, 1))
         print()
 
 
