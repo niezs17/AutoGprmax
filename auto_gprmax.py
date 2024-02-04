@@ -18,11 +18,53 @@ def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
     shape = ['box', 'cylinder']
     random_shape = random.choice(shape)
     if random_shape == 'box':
-        return f"#{random_shape}: {round(x - r, 2)} {round(y - r, 2)} {z1} " \
+        inst = f"#{random_shape}: {round(x - r, 2)} {round(y - r, 2)} {z1} " \
                f"{round(x + r, 2)} {round(y + r, 2)} {z2} {cavity_type}\n"
     else:
-        return f"#{random_shape}: {round(x, 2)} {round(y, 2)} {z1} " \
+        inst = f"#{random_shape}: {round(x, 2)} {round(y, 2)} {z1} " \
                f"{round(x, 2)} {round(y, 2)} {z2} {round(r, 2)} {cavity_type}\n"
+
+    # with open('', 'a') as f:
+    #     f.writelines(describe_input_file(random_shape, x, y, r, cavity_type, inst))
+
+    return inst
+
+
+def describe_input_file(shape, x, y, r, cavity_type, inst):
+    """
+    # 生成一个文档，简单描述该输入文件的信息，在生成空洞组合之后使用
+    # 注意，此处的路基坐标范围'1.60'是写死的，修改路基坐标的时候要改这个
+    shape: 'box'/'cylinder'
+    origin position: (x, y) (coordinate)
+    depth: (m)
+    (box)
+    width: (m)
+    height: (m)
+    (cylinder)
+    radium: (m)
+
+    :return: text
+    """
+    text = ["***********************************\n"]
+    if shape == 'box':
+        text.append("shape: box\n")
+        text.append(f"cavity_type: {cavity_type}\n")
+        text.append(f"origin position: ({x}, {y})\n")
+        text.append(f"depth: {1.60 - y}(m)\n")
+        text.append(f"width: {2 * r}(m)\n")
+        text.append(f"height: {2 * r}(m)\n\n")
+        text.append(f"{inst}")
+    elif shape == 'cylinder':
+        text.append("shape: cylinder\n")
+        text.append(f"cavity_type: {cavity_type}\n")
+        text.append(f"origin position: ({x}, {y})\n")
+        text.append(f"depth: {1.60 - y}(m)\n")
+        text.append(f"radium: {2 * r}(m)\n\n")
+        text.append(f"{inst}")
+    else:
+        text.append("your shape is wrong!\n")
+    text.append("***********************************\n\n")
+    return ''.join(text)
 
 
 def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, time_window, info):
@@ -111,7 +153,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
         cavity_centers = []
         cavity_num = 0
         while cavity_num < (air_cavity_num_all + water_cavity_num_all):
-            cavity_radium.append(random.uniform(0.05, 0.20))  # 随机生成空洞半径
+            cavity_radium.append(random.uniform(0.02, 0.08))  # 随机生成空洞半径
             # print(cavity_radium[-1])
             cavity_region = {'x': [soil_base_space['x1'] + np.max(cavity_radium),
                                    soil_base_space['x2'] - np.max(cavity_radium)],
@@ -133,7 +175,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
         return ''.join(new_inst)
 
 
-def generate(TEXT_INTACT_ROAD, generate_num, air_cavity_num,
+def generate(TEXT_INTACT_ROAD, generate_num, scan_time,  air_cavity_num,
              water_cavity_num, soil_base_space, time_window, generate_mode):
     for _ in range(1, generate_num + 1, 1):
         TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)
@@ -144,7 +186,7 @@ def generate(TEXT_INTACT_ROAD, generate_num, air_cavity_num,
                 TEXT_IN,
                 regenerate=1,
                 geometry=1,
-                ascan_times=10,
+                ascan_times=scan_time,
                 figure_number=_,
                 time_window=time_window,
                 info=f"air_{air_cavity_num}_water_{water_cavity_num}"
@@ -154,7 +196,7 @@ def generate(TEXT_INTACT_ROAD, generate_num, air_cavity_num,
                 TEXT_IN,
                 regenerate=1,
                 geometry=1,
-                ascan_times=10,
+                ascan_times=scan_time,
                 figure_number=_,
                 time_window=time_window,
                 info=f"air_{air_cavity_num}_water_{water_cavity_num}"
@@ -163,7 +205,7 @@ def generate(TEXT_INTACT_ROAD, generate_num, air_cavity_num,
                 TEXT_IN,
                 regenerate=1,
                 geometry=0,
-                ascan_times=10,
+                ascan_times=scan_time,
                 figure_number=_,
                 time_window=time_window,
                 info=f"air_{air_cavity_num}_water_{water_cavity_num}"
@@ -173,7 +215,7 @@ def generate(TEXT_INTACT_ROAD, generate_num, air_cavity_num,
                 TEXT_IN,
                 regenerate=0,
                 geometry=0,
-                ascan_times=10,
+                ascan_times=scan_time,
                 figure_number=_,
                 time_window=time_window,
                 info=f"air_{air_cavity_num}_water_{water_cavity_num}"
