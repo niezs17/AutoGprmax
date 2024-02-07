@@ -1,10 +1,11 @@
+import datetime
 import os
 import numpy as np
 from gprMax.gprMax import api
 from tools.outputfiles_merge import get_output_data, merge_files
 from tools.plot_Bscan import normalized_mpl_plot
 import random
-
+from datetime import date
 
 # import cv2
 
@@ -18,11 +19,11 @@ def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
     shape = ['box', 'cylinder']
     random_shape = random.choice(shape)
     if random_shape == 'box':
-        inst = f"#{random_shape}: {round(x - r, 2)} {round(y - r, 2)} {z1} " \
-               f"{round(x + r, 2)} {round(y + r, 2)} {z2} {cavity_type}\n"
+        inst = f"#{random_shape}: {round(x - r, 3)} {round(y - r, 3)} {z1} " \
+               f"{round(x + r, 3)} {round(y + r, 3)} {z2} {cavity_type}\n"
     else:
-        inst = f"#{random_shape}: {round(x, 2)} {round(y, 2)} {z1} " \
-               f"{round(x, 2)} {round(y, 2)} {z2} {round(r, 2)} {cavity_type}\n"
+        inst = f"#{random_shape}: {round(x, 3)} {round(y, 3)} {z1} " \
+               f"{round(x, 3)} {round(y, 3)} {z2} {round(r, 3)} {cavity_type}\n"
 
     # with open('', 'a') as f:
     #     f.writelines(describe_input_file(random_shape, x, y, r, cavity_type, inst))
@@ -78,19 +79,25 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     :param info:            生成图像基本信息 格式: air_x_water_y(x表示充气空洞数量，y表示充水空洞数量)
     :return None
     """
-    figure_path = f"./text_in/basic_{info}_{figure_number}"
+    figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
     text_geo = "#geometry_view: 0 0 0 2.00 2.00 0.0025 0.0025 0.0025 0.0025 basic n \n"
 
-    while os.path.exists(figure_path):
-        figure_number += 1
-        figure_path = f"./text_in/basic_{info}_{figure_number}"
-
-    if (regenerate and not geometry) or not regenerate:
-        figure_number -= 1
-        figure_path = f"./text_in/basic_{info}_{figure_number}"
+    if regenerate:
+        if geometry:
+            while os.path.exists(figure_path):
+                figure_number += 1
+                figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+            figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+            os.makedirs(figure_path)
+        else:
+            while os.path.exists(figure_path):
+                figure_number += 1
+                figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+            figure_number -= 1
+            figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
     else:
-        figure_path = f"./text_in/basic_{info}_{figure_number}"
-        os.makedirs(figure_path)
+        pass
+
     in_file_name = f"{figure_path}/Ascan.in"
 
     # 处理生成逻辑
@@ -102,7 +109,8 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
                 f.write(text_in)
                 f.write(text_geo)
                 f.close()
-                api(in_file_name, n=1, geometry_only=True)
+                api(in_file_name, n=1, geometry_only=True, gpu={0})
+
         else:
             # 删除最后一行，并在原有in文件基础上扫描n次
             with open(in_file_name, 'r') as f:
@@ -111,17 +119,16 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
             with open(in_file_name, 'w') as f:
                 f.writelines(lines)
                 f.close()
-            api(in_file_name, n=ascan_times, geometry_only=False)
+            api(in_file_name, n=ascan_times, geometry_only=False, gpu={0})
             merge_files(f"{figure_path}/Ascan", removefiles=True)
         print("Process completed.")
     if (regenerate and not geometry) or (not regenerate):
         out_file_name = f"{figure_path}/Ascan_merged.out"
         outputdata, dt = get_output_data(out_file_name, 1, 'Ez')
         plt = normalized_mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window)
+        # plt = mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex')
         plt.savefig(f"{figure_path}/bscan_{info}_{figure_number}.jpg")
-        print(f"{info}_{figure_number} saving succeeded.")
-        print("looking *.out/*.in files in \'figure_x\'")
-        print("looking *.jpg files in \'scan_out\'")
+        print(f"looking *.out/*.in files in {figure_path}")
 
 
 def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
@@ -133,10 +140,10 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
     """
     new_inst = []
     # 对路基空间范围修正，防止生成空洞与PML相交
-    soil_base_space['x1'] += 0.1
-    soil_base_space['y1'] += 0.1
-    soil_base_space['x2'] -= 0.1
-    soil_base_space['y2'] -= 0.1
+    soil_base_space['x1'] += 0.025
+    soil_base_space['y1'] += 0.025
+    soil_base_space['x2'] -= 0.025
+    soil_base_space['y2'] -= 0.025
     # 如果生成数量过多，则默认只生成一个充气型空洞，位于路基正中间
     if air_cavity_num_all + water_cavity_num_all > 5:
         cavity_x = (soil_base_space['x1'] + soil_base_space['x2']) / 2.0
@@ -153,7 +160,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
         cavity_centers = []
         cavity_num = 0
         while cavity_num < (air_cavity_num_all + water_cavity_num_all):
-            cavity_radium.append(random.uniform(0.02, 0.08))  # 随机生成空洞半径
+            cavity_radium.append(random.uniform(0.02, 0.05))  # 随机生成空洞半径
             # print(cavity_radium[-1])
             cavity_region = {'x': [soil_base_space['x1'] + np.max(cavity_radium),
                                    soil_base_space['x2'] - np.max(cavity_radium)],
@@ -178,6 +185,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
 def generate(TEXT_INTACT_ROAD, generate_num, scan_time,  air_cavity_num,
              water_cavity_num, soil_base_space, time_window, generate_mode):
     for _ in range(1, generate_num + 1, 1):
+        os.system('cls' if os.name == 'nt' else 'clear')
         TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)
         # TEXT_IN = TEXT_INTACT_ROAD
         # 生成Bscan图像
@@ -191,7 +199,7 @@ def generate(TEXT_INTACT_ROAD, generate_num, scan_time,  air_cavity_num,
                 time_window=time_window,
                 info=f"air_{air_cavity_num}_water_{water_cavity_num}"
             )
-        elif generate_mode == 'all':
+        elif generate_mode == 'scan':
             generate_bscan(
                 TEXT_IN,
                 regenerate=1,
@@ -225,6 +233,6 @@ def generate(TEXT_INTACT_ROAD, generate_num, scan_time,  air_cavity_num,
 
 
 if __name__ == '__main__':
-    for _ in range(0, 10):
-        print(random_cavity({'x1': 0, 'y1': 0.6, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025}, 2, 1))
+    for _ in range(0, 20):
+        print(random_cavity({'x1': 0, 'y1': 1.0, 'z1': 0, 'x2': 2.0, 'y2': 1.4, 'z2': 0.0025}, 2, 1))
         print()

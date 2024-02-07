@@ -1,6 +1,5 @@
 from auto_gprmax import generate
-
-time_window = 50e-9
+time_window = 36e-9
 
 # 无缺损的道路模型
 TEXT_BASE \
@@ -25,9 +24,9 @@ TEXT_BASE \
 
 # 目前确定生成范围不能小于y=0.8
 if __name__ == '__main__':
-    generate(TEXT_INTACT_ROAD=TEXT_BASE, generate_num=1, scan_time=120,
+    generate(TEXT_INTACT_ROAD=TEXT_BASE, generate_num=20, scan_time=120,
              air_cavity_num=2, water_cavity_num=1,
              time_window=time_window,
-             soil_base_space={'x1': 0, 'y1': 0.8, 'z1': 0, 'x2': 2.0, 'y2': 1.6, 'z2': 0.0025},
-             generate_mode='plot')
+             soil_base_space={'x1': 0.4, 'y1': 0.9, 'z1': 0, 'x2': 1.6, 'y2': 1.3, 'z2': 0.0025},
+             generate_mode='scan')
 
