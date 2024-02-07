@@ -7,6 +7,7 @@ from tools.plot_Bscan import normalized_mpl_plot
 import random
 from datetime import date
 
+
 # import cv2
 
 
@@ -15,6 +16,16 @@ def check_distance(center1, center2, radium):
 
 
 def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
+    """
+    :param x:   中心点横坐标
+    :param y:   中心点纵坐标
+    :param z1:  底面高
+    :param z2:  顶面高
+    :param r:   半径
+    :param cavity_type: 空洞类型
+    :return:    inst:  加入到.in文件的指令字符串
+                describe_input_file(random_shape, x, y, r, cavity_type, inst):  描述空洞类型的字符串
+    """
     # 待选取的形状
     shape = ['box', 'cylinder']
     random_shape = random.choice(shape)
@@ -25,50 +36,40 @@ def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
         inst = f"#{random_shape}: {round(x, 3)} {round(y, 3)} {z1} " \
                f"{round(x, 3)} {round(y, 3)} {z2} {round(r, 3)} {cavity_type}\n"
 
-    # with open('', 'a') as f:
-    #     f.writelines(describe_input_file(random_shape, x, y, r, cavity_type, inst))
-
-    return inst
+    return [inst, describe_input_file(random_shape, x, y, r, cavity_type, inst)]
 
 
 def describe_input_file(shape, x, y, r, cavity_type, inst):
     """
     # 生成一个文档，简单描述该输入文件的信息，在生成空洞组合之后使用
     # 注意，此处的路基坐标范围'1.60'是写死的，修改路基坐标的时候要改这个
-    shape: 'box'/'cylinder'
-    origin position: (x, y) (coordinate)
-    depth: (m)
-    (box)
-    width: (m)
-    height: (m)
-    (cylinder)
-    radium: (m)
-
     :return: text
     """
-    text = ["***********************************\n"]
+    text = ["**********************************************************************\n"]
     if shape == 'box':
         text.append("shape: box\n")
         text.append(f"cavity_type: {cavity_type}\n")
-        text.append(f"origin position: ({x}, {y})\n")
-        text.append(f"depth: {1.60 - y}(m)\n")
-        text.append(f"width: {2 * r}(m)\n")
-        text.append(f"height: {2 * r}(m)\n\n")
+        text.append(f"origin position: ({round(x, 3)}, {round(y, 3)})   (m)\n")
+        text.append(f"depth: {round(1.60 - y, 3)}   (m)\n")
+        text.append(f"width: {round(2 * r, 3)}  (m)\n")
+        text.append(f"height: {round(2 * r, 3)} (m)\n\n")
         text.append(f"{inst}")
     elif shape == 'cylinder':
         text.append("shape: cylinder\n")
         text.append(f"cavity_type: {cavity_type}\n")
-        text.append(f"origin position: ({x}, {y})\n")
-        text.append(f"depth: {1.60 - y}(m)\n")
-        text.append(f"radium: {2 * r}(m)\n\n")
+        text.append(f"origin position: ({round(x, 3)}, {round(y, 3)})   (m)\n")
+        text.append(f"depth: {round(1.60 - y, 3)}  (m)\n")
+        text.append(f"radium: {round(2 * r, 3)}    (m)\n\n")
         text.append(f"{inst}")
     else:
         text.append("your shape is wrong!\n")
-    text.append("***********************************\n\n")
+    text.append("**********************************************************************\n\n")
     return ''.join(text)
 
+# def plot_input_file(shape, x, y, r, cavity_type):
 
-def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, time_window, info):
+
+def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, time_window, info, describe):
     """
     :param text_in:         不带几何建模指令的输入代码(str)
     :param regenerate:      是否重建Bscan
@@ -77,6 +78,7 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     :param figure_number:   生成图像的编号
     :param time_window:     仿真时间
     :param info:            生成图像基本信息 格式: air_x_water_y(x表示充气空洞数量，y表示充水空洞数量)
+    :param describe:        用文字描述图像基本内容 存在:f"./text_in/{date.today()}/basic_{info}_{figure_number}/describe.txt"
     :return None
     """
     figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
@@ -129,6 +131,10 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
         # plt = mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex')
         plt.savefig(f"{figure_path}/bscan_{info}_{figure_number}.jpg")
         print(f"looking *.out/*.in files in {figure_path}")
+    describe_file_name = f"{figure_path}/des.txt"
+    with open(describe_file_name, 'w') as f:
+        f.write(describe)
+        f.close()
 
 
 def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
@@ -138,23 +144,25 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
     :param water_cavity_num_all:    充水空洞数量
     :return: 完整in文件指令
     """
-    new_inst = []
+    create_result = [[], []]
     # 对路基空间范围修正，防止生成空洞与PML相交
     soil_base_space['x1'] += 0.025
     soil_base_space['y1'] += 0.025
     soil_base_space['x2'] -= 0.025
     soil_base_space['y2'] -= 0.025
     # 如果生成数量过多，则默认只生成一个充气型空洞，位于路基正中间
-    if air_cavity_num_all + water_cavity_num_all > 5:
-        cavity_x = (soil_base_space['x1'] + soil_base_space['x2']) / 2.0
-        cavity_y = (soil_base_space['y1'] + soil_base_space['y2']) / 2.0
+    if air_cavity_num_all + water_cavity_num_all > 3:
+        x = (soil_base_space['x1'] + soil_base_space['x2']) / 2.0
+        y = (soil_base_space['y1'] + soil_base_space['y2']) / 2.0
         cavity_radium = 0.2
         cavity_type = 'free_space'
-        new_inst.append(create_cavity_instruction(cavity_x, cavity_y, soil_base_space['z1'], soil_base_space['z2'],
-                                                  cavity_radium, cavity_type))
+        create_result[0].append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
+                                                          cavity_radium, cavity_type)[0])
+        create_result[1].append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
+                                                          cavity_radium, cavity_type)[1])
         print("Too many cavities!\n "
               "Automatically generate an cylinder air cavity with the center of soil base, r = 0.2")
-        return ''.join(new_inst)
+        return create_result
     else:
         cavity_radium = []
         cavity_centers = []
@@ -172,21 +180,26 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
             # Check distance from previous cavities
             if all(not check_distance((x, y), center, cavity_radium[-2:]) for center in cavity_centers[:-1]):
                 cavity_type = 'free_space' if cavity_num < air_cavity_num_all else 'water'
-                new_inst.append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
-                                                          cavity_radium[-1], cavity_type))
+                create_result[0].append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
+                                                                  cavity_radium[-1], cavity_type)[0])
+                create_result[1].append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
+                                                                  cavity_radium[-1], cavity_type)[1])
                 cavity_num += 1
             else:
                 # Adjusting cavity radius or position if necessary
                 # Or handle overlapping cavities
                 pass
-        return ''.join(new_inst)
+        create_result[0] = ''.join(create_result[0])
+        create_result[1] = ''.join(create_result[1])
+        return create_result
 
 
-def generate(TEXT_INTACT_ROAD, generate_num, scan_time,  air_cavity_num,
+def generate(TEXT_INTACT_ROAD, generate_num, ascan_times, air_cavity_num,
              water_cavity_num, soil_base_space, time_window, generate_mode):
-    for _ in range(1, generate_num + 1, 1):
+    for figure_number in range(1, generate_num + 1, 1):
         os.system('cls' if os.name == 'nt' else 'clear')
-        TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)
+        TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)[0]
+        DESCRIBE = random_cavity(soil_base_space, air_cavity_num, water_cavity_num)[1]
         # TEXT_IN = TEXT_INTACT_ROAD
         # 生成Bscan图像
         if generate_mode == 'geo':
@@ -194,39 +207,43 @@ def generate(TEXT_INTACT_ROAD, generate_num, scan_time,  air_cavity_num,
                 TEXT_IN,
                 regenerate=1,
                 geometry=1,
-                ascan_times=scan_time,
-                figure_number=_,
+                ascan_times=ascan_times,
+                figure_number=figure_number,
                 time_window=time_window,
-                info=f"air_{air_cavity_num}_water_{water_cavity_num}"
+                info=f"air_{air_cavity_num}_water_{water_cavity_num}",
+                describe=DESCRIBE
             )
         elif generate_mode == 'scan':
             generate_bscan(
                 TEXT_IN,
                 regenerate=1,
                 geometry=1,
-                ascan_times=scan_time,
-                figure_number=_,
+                ascan_times=ascan_times,
+                figure_number=figure_number,
                 time_window=time_window,
-                info=f"air_{air_cavity_num}_water_{water_cavity_num}"
+                info=f"air_{air_cavity_num}_water_{water_cavity_num}",
+                describe=DESCRIBE
             )
             generate_bscan(
                 TEXT_IN,
                 regenerate=1,
                 geometry=0,
-                ascan_times=scan_time,
-                figure_number=_,
+                ascan_times=ascan_times,
+                figure_number=figure_number,
                 time_window=time_window,
-                info=f"air_{air_cavity_num}_water_{water_cavity_num}"
+                info=f"air_{air_cavity_num}_water_{water_cavity_num}",
+                describe=DESCRIBE
             )
         elif generate_mode == 'plot':
             generate_bscan(
                 TEXT_IN,
                 regenerate=0,
                 geometry=0,
-                ascan_times=scan_time,
-                figure_number=_,
+                ascan_times=ascan_times,
+                figure_number=figure_number,
                 time_window=time_window,
-                info=f"air_{air_cavity_num}_water_{water_cavity_num}"
+                info=f"air_{air_cavity_num}_water_{water_cavity_num}",
+                describe=DESCRIBE
             )
         else:
             print("generate_mode error")

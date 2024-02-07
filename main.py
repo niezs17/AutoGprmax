@@ -24,7 +24,7 @@ TEXT_BASE \
 
 # 目前确定生成范围不能小于y=0.8
 if __name__ == '__main__':
-    generate(TEXT_INTACT_ROAD=TEXT_BASE, generate_num=20, scan_time=120,
+    generate(TEXT_INTACT_ROAD=TEXT_BASE, generate_num=2, ascan_times=120,
              air_cavity_num=2, water_cavity_num=1,
              time_window=time_window,
              soil_base_space={'x1': 0.4, 'y1': 0.9, 'z1': 0, 'x2': 1.6, 'y2': 1.3, 'z2': 0.0025},
