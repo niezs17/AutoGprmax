@@ -1,4 +1,8 @@
-import pycuda.autoinit
+"""
+        此脚本用于测试gprMax+pycuda+cuda+python环境搭建的正确性
+        来源: https://documen.tician.de/pycuda/
+"""
+
 import pycuda.driver as drv
 import numpy
 
@@ -19,6 +23,6 @@ b = numpy.random.randn(400).astype(numpy.float32)
 dest = numpy.zeros_like(a)
 multiply_them(
         drv.Out(dest), drv.In(a), drv.In(b),
-        block=(400,1,1), grid=(1,1))
+        block=(400, 1, 1), grid=(1, 1))
 
 print(dest-a*b)

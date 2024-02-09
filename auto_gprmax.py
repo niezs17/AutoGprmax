@@ -78,25 +78,25 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     :param figure_number:   生成图像的编号
     :param time_window:     仿真时间
     :param info:            生成图像基本信息 格式: air_x_water_y(x表示充气空洞数量，y表示充水空洞数量)
-    :param describe:        用文字描述图像基本内容 存在:f"./text_in/{date.today()}/basic_{info}_{figure_number}/describe.txt"
+    :param describe:        用文字描述图像基本内容 存在:f"./B-scan/{date.today()}/basic_{info}_{figure_number}/describe.txt"
     :return None
     """
-    figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+    figure_path = f"./B-scan/{date.today()}/basic_{info}_{figure_number}"
     text_geo = "#geometry_view: 0 0 0 2.00 2.00 0.0025 0.0025 0.0025 0.0025 basic n \n"
 
     if regenerate:
         if geometry:
             while os.path.exists(figure_path):
                 figure_number += 1
-                figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
-            figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+                figure_path = f"./B-scan/{date.today()}/basic_{info}_{figure_number}"
+            figure_path = f"./B-scan/{date.today()}/basic_{info}_{figure_number}"
             os.makedirs(figure_path)
         else:
             while os.path.exists(figure_path):
                 figure_number += 1
-                figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+                figure_path = f"./B-scan/{date.today()}/basic_{info}_{figure_number}"
             figure_number -= 1
-            figure_path = f"./text_in/{date.today()}/basic_{info}_{figure_number}"
+            figure_path = f"./B-scan/{date.today()}/basic_{info}_{figure_number}"
     else:
         pass
 
