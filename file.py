@@ -32,10 +32,12 @@ def count_all_jpgs():
 def classify_all_jpgs(way):
     """
     对生成图片分类保存
-    1. 按时间分类保存
-    2. 按内容分类保存
-    :return:
+    :way='date':     按时间分类保存
+    :way='content':  按内容分类保存
+    :return: None
     """
+    new_file = []
+    overwrite_file = []
     count = {'air1_water2': 0, 'air2_water1': 0, 'air0_water3': 0, 'air3_water0': 0}
     if way == 'date':
         print("\nSave by date...\n")
@@ -71,22 +73,27 @@ def classify_all_jpgs(way):
                 else:
                     break
                 # 复制文件
-                if not os.path.exists(dest_file_path):
-                    shutil.copy(file_path, dest_file_path)
-                    print(f"Copied: {file_path} to {dest_file_path} successfully")
+                if os.path.exists(dest_file_path):
+                    overwrite_file.append(f"overwrite: {file_path} -> {dest_file_path}\n")
                 else:
-                    print(f"{dest_file_path} already exists")
+                    new_file.append(f"add: {file_path} -> {dest_file_path}\n")
+                shutil.copy(file_path, dest_file_path)
+    if len(new_file) > 0:
+        print(f"\n** New   \ncount: {len(new_file):>5}\n{''.join(new_file)}")
+    else:
+        print(f"No files added")
+    if len(overwrite_file) > 0:
+        print(f"\n** Overwrite   \ncount: {len(overwrite_file):>5}\n{''.join(overwrite_file)}")
+    else:
+        print(f"No files overwrote")
 
 
 # 使用示例
 # 将 'src_dir' 替换成你的源目录路径, 'dest_dir' 替换成你的目的目录路径
 if __name__ == '__main__':
-    # classify_all_jpgs(way='date')
-    # classify_all_jpgs(way='content')
+    classify_all_jpgs(way='date')
+    classify_all_jpgs(way='content')
     count_all_jpgs()
 
 # 下次更新思路:
-# 1. 在终端展示文件结构
-# 2. 有处理重复文件名的能力
-# 3. 按照图片目标分类
-# 4. 轻量化，能做到一键处理
+# 1.
