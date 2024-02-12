@@ -8,9 +8,6 @@ import random
 from datetime import date
 
 
-# import cv2
-
-
 def check_distance(center1, center2, radium):
     return np.linalg.norm(np.array(center1) - np.array(center2)) < np.sum(radium)
 
