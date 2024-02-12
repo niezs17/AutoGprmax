@@ -3,8 +3,8 @@ setlocal
 set script_path=E:\PAPPER\PROCESS\GprMax\gpr_in\generate.py
 set /a count=0
 :loop
-if %count% == 60 goto :end
-echo generate B-scan figure for %count% times...
+if %count% == 115 goto :end
+echo We will generate B-scan figure for %count% times...
 python "%script_path%" 1 2
 set /a count+=1
 cls
