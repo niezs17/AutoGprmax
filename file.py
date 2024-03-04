@@ -1,18 +1,51 @@
 import os
 import shutil
 
+# def exponential_gain(image_data, a=1.3, b=3.1, ymax=500):
+#     x = np.arange(1, len(image_data) + 1)
+#     y = a ** (x * 1e-2) - b
+#     # Limiting the gain
+#     y = np.clip(y, None, ymax)
+#
+#     # Check if image_data is 1D or 2D and apply gain accordingly
+#     if image_data.ndim == 1:
+#         image_data = image_data * y
+#     else:
+#         image_data = image_data * y[:, np.newaxis]
+#
+#     col_num = image_data.shape[1]
+#     row_num = image_data.shape[0]
+#     for i in range(col_num):
+#         # 计算平均值
+#         median_value = np.median(image_data[:, i])
+#         # print(f"col_before: {np.array(image_data[:, i])}")
+#         # print(f"median_values: {median_value}")
+#         image_data[:, i] = image_data[:, i] - median_value
+#         # for j in range(row_num):
+#             # if image_data[j, i] < median_value:
+#             #     image_data[:, i] = image_data[:, i] + median_value * weight
+#             # else:
+#             #     image_data[:, i] = image_data[:, i] - median_value * weight
+#         # print(f"col_then  : {np.array(image_data[:, i])}")
+#     return image_data
+
 
 def count_all_jpgs():
     """
     对生成图片统计
     """
     goal = 300
+    count_sum = 0
     root_dir = './B-scan'
-    all_count = {'air1_water2': 0, 'air2_water1': 0, 'air0_water3': 0, 'air3_water0': 0}
+    all_count = {'air2_water0': 0, 'air0_water2': 0,
+                 'air1_water0': 0, 'air0_water1': 0,
+                 'air1_water1': 0}
     print("\nStatistics on generated results...\n")
     print("Statistics by date...")
     for date_dir in os.listdir(root_dir):
-        count = {'air1_water2': 0, 'air2_water1': 0, 'air0_water3': 0, 'air3_water0': 0}
+        count = {'air2_water0': 0, 'air0_water2': 0,
+                 'air1_water0': 0, 'air0_water1': 0,
+                 'air1_water1': 0}
         for basic_dir in os.listdir(os.path.join(root_dir, date_dir)):
             # print(os.path.join(basic_dir))
             if ''.join(basic_dir) != 'result':
@@ -25,7 +58,10 @@ def count_all_jpgs():
     print("\nStatistics by all...")
     print("***************************************************")
     for key, value in all_count.items():
-        print(f"{key}: {value:>4}      goal: {goal:>4}       prog: {int(value/goal * 100):>3}%")
+        print(f"{key}: {value:>4}      goal: {goal:>4}       prog: {int(value / goal * 100):>3}%")
+        count_sum += value
+    print("***************************************************")
+    print(f"sum: {count_sum:>5}")
     print("***************************************************")
 
 
@@ -38,7 +74,11 @@ def classify_all_jpgs(way):
     """
     new_file = []
     overwrite_file = []
-    count = {'air1_water2': 0, 'air2_water1': 0, 'air0_water3': 0, 'air3_water0': 0}
+    count = {'air2_water0': 0, 'air0_water2': 0,
+             'air1_water0': 0, 'air0_water1': 0,
+             'air1_water1': 0}
+    cavity_class = 'none'
+    dest_file_path = 'none'
 
     if way == 'date':
         print("\nSave by date...\n")
@@ -136,9 +176,25 @@ def remove_all_jpgs(way):
         print(f"No files removed")
 
 
-# 使用示例
-# 将 'src_dir' 替换成你的源目录路径, 'dest_dir' 替换成你的目的目录路径
+# def exponential_gain(data, a=1.3, b=3.1, ymax=500):
+#     x = np.arange(1, len(data) + 1)
+#     y = a ** (x * 1e-2) - b
+#     # Limiting the gain
+#     y = np.clip(y, None, ymax)
+#
+#     # Check if data is 1D or 2D and apply gain accordingly
+#     if data.ndim == 1:
+#         data = data * y
+#     else:
+#         data = data * y[:, np.newaxis]
+#
+#     return data
+
+
 if __name__ == '__main__':
+    os.system('cls' if os.name == 'nt' else 'clear')
+    # remove_all_jpgs(way='date')
+    # remove_all_jpgs(way='content')
     classify_all_jpgs(way='date')
     classify_all_jpgs(way='content')
     count_all_jpgs()
