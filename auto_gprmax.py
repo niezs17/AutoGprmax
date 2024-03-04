@@ -8,8 +8,16 @@ import random
 from datetime import date
 
 
-def check_distance(center1, center2, radium):
-    return np.linalg.norm(np.array(center1) - np.array(center2)) < np.sum(radium)
+# import cv2
+
+
+def check_distance(center1, center2, radium, limit):
+    # print(np.linalg.norm(np.array(center1) - np.array(center2)) < (np.sum(radium)+1.))
+    # print(np.linalg.norm(np.array(center1) - np.array(center2)) )
+    # print(f"center1: {center1}, center2: {center2}")
+    distance = np.linalg.norm(np.array(center1) - np.array(center2))
+    # print(distance)
+    return (np.sum(radium) + limit[1]) >= distance >= (np.sum(radium) + limit[0])
 
 
 def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
@@ -79,7 +87,7 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     :return None
     """
     figure_path = f"./B-scan/{date.today()}/basic_{info}_{figure_number}"
-    text_geo = "#geometry_view: 0 0 0 2.00 2.00 0.0025 0.0025 0.0025 0.0025 basic n \n"
+    text_geo = "#geometry_view: 0 0 0 4.00 1.40 0.0025 0.0025 0.0025 0.0025 basic n \n"
 
     if regenerate:
         if geometry:
@@ -124,7 +132,7 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     if (regenerate and not geometry) or (not regenerate):
         out_file_name = f"{figure_path}/Ascan_merged.out"
         outputdata, dt = get_output_data(out_file_name, 1, 'Ez')
-        plt = normalized_mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window)
+        plt = normalized_mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window, ymax=580)
         # plt = mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex')
         plt.savefig(f"{figure_path}/bscan_{info}_{figure_number}.jpg")
         print(f"looking *.out/*.in files in {figure_path}")
@@ -134,13 +142,16 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
         f.close()
 
 
-def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
+def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all, distance_limit=None):
     """
+    :param distance_limit:
     :param soil_base_space:     路基空间范围
     :param air_cavity_num_all:      充气空洞数量
     :param water_cavity_num_all:    充水空洞数量
     :return: 完整in文件指令
     """
+    if distance_limit is None:
+        distance_limit = [0.6, 1.2]
     create_result = [[], []]
     # 对路基空间范围修正，防止生成空洞与PML相交
     soil_base_space['x1'] += 0.025
@@ -148,7 +159,8 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
     soil_base_space['x2'] -= 0.025
     soil_base_space['y2'] -= 0.025
     # 如果生成数量过多，则默认只生成一个充气型空洞，位于路基正中间
-    if air_cavity_num_all + water_cavity_num_all > 3:
+    print(f"allowed distance range between any two cavities --- min: {distance_limit[0]}, max: {distance_limit[1]}")
+    if air_cavity_num_all + water_cavity_num_all > 2:
         x = (soil_base_space['x1'] + soil_base_space['x2']) / 2.0
         y = (soil_base_space['y1'] + soil_base_space['y2']) / 2.0
         cavity_radium = 0.2
@@ -157,7 +169,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
                                                           cavity_radium, cavity_type)[0])
         create_result[1].append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
                                                           cavity_radium, cavity_type)[1])
-        print("Too many cavities!\n "
+        print("Too many cavities! more than 2\n "
               "Automatically generate an cylinder air cavity with the center of soil base, r = 0.2")
         return create_result
     else:
@@ -175,7 +187,9 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
             y = random.uniform(cavity_region['y'][0], cavity_region['y'][1])
             cavity_centers.append((x, y))
             # Check distance from previous cavities
-            if all(not check_distance((x, y), center, cavity_radium[-2:]) for center in cavity_centers[:-1]):
+            # Check distance from the last cavity
+            if all(check_distance((x, y), center, cavity_radium[-1:], distance_limit) for center in cavity_centers[:-1]):
+                # check_distance((x, y), (1, 2), cavity_radium[-2:])
                 cavity_type = 'free_space' if cavity_num < air_cavity_num_all else 'water'
                 create_result[0].append(create_cavity_instruction(x, y, soil_base_space['z1'], soil_base_space['z2'],
                                                                   cavity_radium[-1], cavity_type)[0])
@@ -185,6 +199,8 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
             else:
                 # Adjusting cavity radius or position if necessary
                 # Or handle overlapping cavities
+                print("else")
+                cavity_centers.pop()
                 pass
         create_result[0] = ''.join(create_result[0])
         create_result[1] = ''.join(create_result[1])
@@ -194,7 +210,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all):
 def generate(TEXT_INTACT_ROAD, generate_num, ascan_times, air_cavity_num,
              water_cavity_num, soil_base_space, time_window, generate_mode):
     for figure_number in range(1, generate_num + 1, 1):
-        os.system('cls' if os.name == 'nt' else 'clear')
+        # os.system('cls' if os.name == 'nt' else 'clear')
         TEXT_IN = TEXT_INTACT_ROAD + random_cavity(soil_base_space, air_cavity_num, water_cavity_num)[0]
         DESCRIBE = random_cavity(soil_base_space, air_cavity_num, water_cavity_num)[1]
         # TEXT_IN = TEXT_INTACT_ROAD
@@ -247,6 +263,7 @@ def generate(TEXT_INTACT_ROAD, generate_num, ascan_times, air_cavity_num,
 
 
 if __name__ == '__main__':
-    for _ in range(0, 20):
-        print(random_cavity({'x1': 0, 'y1': 1.0, 'z1': 0, 'x2': 2.0, 'y2': 1.4, 'z2': 0.0025}, 2, 1))
+    for _ in range(0, 3000):
+        print(''.join(random_cavity({'x1': 0.4, 'y1': 1.0, 'z1': 0, 'x2': 3.6, 'y2': 1.4, 'z2': 0.0025}, 1, 1)))
         print()
+    print('done')
