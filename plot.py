@@ -3,8 +3,7 @@ import numpy as np
 import os
 from tools.plot_Bscan import normalized_mpl_plot
 from tools.outputfiles_merge import get_output_data
-from file import classify_all_jpgs
-from file import remove_all_jpgs
+from file import file
 
 
 def crop_figure(output_root_dir="./processed_figure", root_dir="./figure"):
@@ -60,8 +59,46 @@ def crop_figure(output_root_dir="./processed_figure", root_dir="./figure"):
     print(f"Done, all count: {count}")
 
 
-def plot_out_file(ascan_times=120, time_window=20e-9):
+def get_ymax(in_file_path):
+    if not in_file_path.endswith('.in'):
+        return 580
+    else:
+        with open(in_file_path, 'r') as file:
+            text = file.readlines()
+            # 这里写死了.in文件不变的部分为16行，待更改
+            depth = []
+            for element_line in text[16 - len(text):]:
+                element = element_line.split()[0]
+                if element == '#cylinder:':
+                    depth.append(float(element_line.split()[2]))
+                elif element == '#box:':
+                    depth.append((float(element_line.split()[5]) + float(element_line.split()[2]))/2)
+                else:
+                    pass
+            depth = np.array(depth)
+    ymax = np.int32(40 * (37.8 * (1 - depth) - 15) + 100)
+    return ymax
+
+
+def generate_figure(out_file_path, save_file_path, outputdata, dt, ascan_times, time_window, plot_filter,
+                    ymax=np.array([580])):
+    plt = normalized_mpl_plot(out_file_path, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window,
+                              ymax, plot_filter)
+    # save_file_path = os.path.join(figure_path, plot_filter)
+    # if not os.path.exists(save_file_path):
+    #     os.mkdir(save_file_path)
+    # if not plot_filter == 'none':
+    #     save_file_path = os.path.join(figure_path, plot_filter, f'ymax={ymax}.jpg')
+    # else:
+    #     save_file_path = os.path.join(figure_path, plot_filter, f'none.jpg')
+    # plt.savefig(save_file_path)
+    plt.close()
+    print(f"looking *.out/*.in files in {save_file_path}, ymax = {ymax}, filter = {plot_filter}")
+
+
+def plot(ascan_times=120, time_window=20e-9, all_count=0, plot_filter='none'):
     root_dir = "./B-scan"
+    count = 0
     ashbin = []
     for root, dirs, files in os.walk(root_dir):
         for dirname in dirs:
@@ -69,21 +106,19 @@ def plot_out_file(ascan_times=120, time_window=20e-9):
                 # figure文件夹的绝对路径
                 figure_path = os.path.join(root, dirname)
                 out_file_path = os.path.join(figure_path, "Ascan_merged.out")
+                in_file_path = os.path.join(figure_path, "Ascan.in")
                 if not os.path.exists(out_file_path):
-                    ashbin.append(figure_path)
+                    ashbin.append(''.join(figure_path + '\n'))
                     continue
                 info = f"{dirname[6:]}"
                 save_file_path = os.path.join(figure_path, f"bscan_{info}.jpg")
                 outputdata, dt = get_output_data(out_file_path, 1, 'Ez')
-                for ymax in range(400, 701, 10):
-                    generate_figure(out_file_path, figure_path, outputdata, dt, ascan_times, time_window, ymax)
-                for ymax in range(100, 1001, 100):
-                    generate_figure(out_file_path, figure_path, outputdata, dt, ascan_times, time_window, ymax)
-                # plt = normalized_mpl_plot(out_file_path, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window,
-                #                           ymax=500)
-                # plt.savefig(save_file_path)
-                # print(f"looking *.out/*.in files in {save_file_path}")
-                return
+                ymax = get_ymax(in_file_path)
+                generate_figure(out_file_path, save_file_path, outputdata, dt, ascan_times,
+                                time_window, plot_filter, ymax)
+                count += 1
+                if count >= all_count != 0:
+                    return
                 # print(f"figure_path:{figure_path}")
                 # print(f"out_file_path:{out_file_path}")
                 # print(f"save_file_path:{save_file_path}")
@@ -94,23 +129,8 @@ def plot_out_file(ascan_times=120, time_window=20e-9):
         print("procession: \'plot\' all success")
 
 
-def generate_figure(out_file_path, figure_path, outputdata, dt, ascan_times, time_window, ymax):
-    plt = normalized_mpl_plot(out_file_path, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window,
-                              ymax)
-    save_file_path = os.path.join(figure_path, 'ef')
-    if not os.path.exists(save_file_path):
-        os.mkdir(save_file_path)
-    save_file_path = os.path.join(figure_path, 'ef', f'ymax={ymax}.jpg')
-    plt.savefig(save_file_path)
-    print(f"looking *.out/*.in files in {save_file_path}")
-
-
-def plot():
-    plot_out_file()
-    # remove_all_jpgs(way='content')
-    # classify_all_jpgs(way='content')
-    # crop_figure()
-
 
 if __name__ == "__main__":
-    plot()
+    plot( all_count=0, plot_filter='eef')
+    # file()
+    # print(get_ymax('E:\\PAPPER\\PROCESS\\GprMax\\gpr_in\\B-scan\\2024-03-05\\basic_air_1_water_1_49\\Ascan.in'))

@@ -48,11 +48,12 @@ def count_all_jpgs():
                  'air1_water1': 0}
         for basic_dir in os.listdir(os.path.join(root_dir, date_dir)):
             # print(os.path.join(basic_dir))
-            if ''.join(basic_dir) != 'result':
+            if not basic_dir.lower().startswith('result') :
+                print(basic_dir)
                 count[f"air{''.join(basic_dir)[10]}_water{''.join(basic_dir)[18]}"] += 1
                 all_count[f"air{''.join(basic_dir)[10]}_water{''.join(basic_dir)[18]}"] += 1
         print("***************************")
-        print(f"{os.path.join(date_dir)}")
+        print(f"{os.path.join(date_dir[:10])}")
         for key, value in count.items():
             print(f"{key}: {value:>4}")
     print("\nStatistics by all...")
@@ -94,7 +95,7 @@ def classify_all_jpgs(way):
             continue
 
         for file in files:
-            if file.lower().endswith('.jpg'):
+            if file.lower().endswith('.jpg') and file.lower().startswith('bscan'):
                 file_path = os.path.join(root, file)
                 parent_dir = os.path.abspath(os.path.join(root, os.pardir))
 
@@ -149,7 +150,7 @@ def remove_all_jpgs(way):
                 # 遍历当前result文件夹下的所有文件
                 for file in files:
                     # 假设图片文件的扩展名为.jpg等
-                    if file.lower().endswith('.jpg'):
+                    if file.lower().endswith('.jpg') and file.lower().startswith('bscan'):
                         # 构建图片的完整路径
                         file_path = os.path.join(root, file)
                         remove_file.append(f"remove: {file_path}\n")
@@ -161,7 +162,7 @@ def remove_all_jpgs(way):
             # 遍历当前figure文件夹下的所有文件
             for file in files:
                 # 假设图片文件的扩展名为.jpg等
-                if file.lower().endswith('.jpg'):
+                if file.lower().endswith('.jpg') and file.lower().startswith('bscan'):
                     # 构建图片的完整路径
                     file_path = os.path.join(root, file)
                     remove_file.append(f"remove: {file_path}\n")
@@ -190,11 +191,14 @@ def remove_all_jpgs(way):
 #
 #     return data
 
-
-if __name__ == '__main__':
+def file():
     os.system('cls' if os.name == 'nt' else 'clear')
     # remove_all_jpgs(way='date')
     # remove_all_jpgs(way='content')
     classify_all_jpgs(way='date')
     classify_all_jpgs(way='content')
     count_all_jpgs()
+
+
+if __name__ == '__main__':
+    file()

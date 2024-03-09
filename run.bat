@@ -4,12 +4,11 @@ cls
 setlocal
 
 set CONDA_PATH=C:\Users\NIEZS\miniconda3
-
 set CONDA_ENV=gprMax
 set script_path=E:\PAPPER\PROCESS\GprMax\gpr_in\generate.py
 set /a count=0
-set /a air_num=1
-set /a water_num=1
+set /a air_num=2
+set /a water_num=0
 set /a times=120
 
 

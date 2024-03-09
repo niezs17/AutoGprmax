@@ -8,9 +8,6 @@ import random
 from datetime import date
 
 
-# import cv2
-
-
 def check_distance(center1, center2, radium, limit):
     # print(np.linalg.norm(np.array(center1) - np.array(center2)) < (np.sum(radium)+1.))
     # print(np.linalg.norm(np.array(center1) - np.array(center2)) )
@@ -46,8 +43,8 @@ def create_cavity_instruction(x, y, z1, z2, r, cavity_type):
 
 def describe_input_file(shape, x, y, r, cavity_type, inst):
     """
-    # 生成一个文档，简单描述该输入文件的信息，在生成空洞组合之后使用
-    # 注意，此处的路基坐标范围'1.60'是写死的，修改路基坐标的时候要改这个
+    # 生成一个文档, 简单描述该输入文件的信息, 在生成空洞组合之后使用
+    # 注意, 此处的路基坐标范围'1.60'是写死的, 修改路基坐标的时候要改这个
     :return: text
     """
     text = ["**********************************************************************\n"]
@@ -82,7 +79,7 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     :param ascan_times:     Ascan扫描次数
     :param figure_number:   生成图像的编号
     :param time_window:     仿真时间
-    :param info:            生成图像基本信息 格式: air_x_water_y(x表示充气空洞数量，y表示充水空洞数量)
+    :param info:            生成图像基本信息 格式: air_x_water_y(x表示充气空洞数量, y表示充水空洞数量)
     :param describe:        用文字描述图像基本内容 存在:f"./B-scan/{date.today()}/basic_{info}_{figure_number}/describe.txt"
     :return None
     """
@@ -110,7 +107,7 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     # 处理生成逻辑
     if regenerate:
         if geometry:
-            # 创建目录  在存文件之前，检查先前是否已经生成过同名文件，若有，则存在该文件编号后面
+            # 创建目录  在存文件之前, 检查先前是否已经生成过同名文件, 若有, 则存在该文件编号后面
             with open(in_file_name, 'w') as f:
                 # 处理几何建模 在原有文本基础上加一行
                 f.write(text_in)
@@ -119,7 +116,7 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
                 api(in_file_name, n=1, geometry_only=True, gpu={0})
 
         else:
-            # 删除最后一行，并在原有in文件基础上扫描n次
+            # 删除最后一行, 并在原有in文件基础上扫描n次
             with open(in_file_name, 'r') as f:
                 lines = f.readlines()[:-1]
                 f.close()
@@ -132,9 +129,11 @@ def generate_bscan(text_in, regenerate, geometry, ascan_times, figure_number, ti
     if (regenerate and not geometry) or (not regenerate):
         out_file_name = f"{figure_path}/Ascan_merged.out"
         outputdata, dt = get_output_data(out_file_name, 1, 'Ez')
-        plt = normalized_mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window, ymax=580)
+        plt = normalized_mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window, ymax=580,
+                                  plot_filter='fee')
         # plt = mpl_plot(out_file_name, outputdata, dt * 1e9, 1, 'Ex')
         plt.savefig(f"{figure_path}/bscan_{info}_{figure_number}.jpg")
+        plt.close()
         print(f"looking *.out/*.in files in {figure_path}")
     describe_file_name = f"{figure_path}/des.txt"
     with open(describe_file_name, 'w') as f:
@@ -151,14 +150,14 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all, dis
     :return: 完整in文件指令
     """
     if distance_limit is None:
-        distance_limit = [0.6, 1.2]
+        distance_limit = [1, 2]
     create_result = [[], []]
-    # 对路基空间范围修正，防止生成空洞与PML相交
+    # 对路基空间范围修正, 防止生成空洞与PML相交
     soil_base_space['x1'] += 0.025
     soil_base_space['y1'] += 0.025
     soil_base_space['x2'] -= 0.025
     soil_base_space['y2'] -= 0.025
-    # 如果生成数量过多，则默认只生成一个充气型空洞，位于路基正中间
+    # 如果生成数量过多, 则默认只生成一个充气型空洞, 位于路基正中间
     print(f"allowed distance range between any two cavities --- min: {distance_limit[0]}, max: {distance_limit[1]}")
     if air_cavity_num_all + water_cavity_num_all > 2:
         x = (soil_base_space['x1'] + soil_base_space['x2']) / 2.0
@@ -177,7 +176,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all, dis
         cavity_centers = []
         cavity_num = 0
         while cavity_num < (air_cavity_num_all + water_cavity_num_all):
-            cavity_radium.append(random.uniform(0.02, 0.05))  # 随机生成空洞半径
+            cavity_radium.append(random.uniform(0.025, 0.05))  # 随机生成空洞半径
             # print(cavity_radium[-1])
             cavity_region = {'x': [soil_base_space['x1'] + np.max(cavity_radium),
                                    soil_base_space['x2'] - np.max(cavity_radium)],
@@ -199,7 +198,7 @@ def random_cavity(soil_base_space, air_cavity_num_all, water_cavity_num_all, dis
             else:
                 # Adjusting cavity radius or position if necessary
                 # Or handle overlapping cavities
-                print("else")
+                # print("else")
                 cavity_centers.pop()
                 pass
         create_result[0] = ''.join(create_result[0])
@@ -265,5 +264,4 @@ def generate(TEXT_INTACT_ROAD, generate_num, ascan_times, air_cavity_num,
 if __name__ == '__main__':
     for _ in range(0, 3000):
         print(''.join(random_cavity({'x1': 0.4, 'y1': 1.0, 'z1': 0, 'x2': 3.6, 'y2': 1.4, 'z2': 0.0025}, 1, 1)))
-        print()
     print('done')

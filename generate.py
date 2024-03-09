@@ -32,7 +32,7 @@ if __name__ == '__main__':
         generate(TEXT_INTACT_ROAD=TEXT_BASE, generate_num=1, ascan_times=120,
                  air_cavity_num=int(air_cavity_num), water_cavity_num=int(water_cavity_num),
                  time_window=time_window,
-                 soil_base_space={'x1': 0.4, 'y1': 0.2, 'z1': 0, 'x2': 3.6, 'y2': 0.7, 'z2': 0.0025},
+                 soil_base_space={'x1': 0.4, 'y1': 0.35, 'z1': 0, 'x2': 3.6, 'y2': 0.7, 'z2': 0.0025},
                  generate_mode='scan')
     else:
         print("you need 2 parameters: air_cavity_num, water_cavity_num")
