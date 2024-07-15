@@ -2,7 +2,6 @@ from PIL import Image
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-from tools.plot_Bscan import normalizedMplPlot
 from tools.outputfiles_merge import get_output_data
 from file import reorganize
 
@@ -131,9 +130,9 @@ def cropFigure(output_root_dir="./processed_figure", root_dir="./figure"):
     # Crop all .jpg images in the root directory
     # Specify the path to store processed images
     # Input the size of the processed images
-    target_width = 400
-    target_height = 600
-    left, top, right, bottom, count= 51, 73, 360, 534, 0
+    target_width = 320
+    target_height = 320
+    left, top, right, bottom, count= 75, 75, 540, 533, 0
     if not os.path.exists(output_root_dir):
         os.makedirs(output_root_dir)
     for root, dirs, files in os.walk(root_dir):
@@ -142,20 +141,13 @@ def cropFigure(output_root_dir="./processed_figure", root_dir="./figure"):
                 count += 1
                 file_path = os.path.join(root, file)
                 with Image.open(file_path).convert('L') as img:
-                    # 裁剪图片
                     cropped_img = img.crop((left, top, right, bottom))
-                    # 调整图片尺寸
                     resized_img = cropped_img.resize((target_width, target_height), Image.LANCZOS)
-                    # 将PIL图像转换为OpenCV图像
-                    open_cv_image = np.array(resized_img)
-                    # 将OpenCV图像转换回PIL图像以保存(
-                    final_img = Image.fromarray(open_cv_image)
-                    # 保存处理后的图片
                     output_dir_path = os.path.join(output_root_dir, os.path.basename(os.path.dirname(file_path)))
                     if not os.path.exists(output_dir_path):
                         os.makedirs(output_dir_path)
                     output_path = os.path.join(output_dir_path, file)
-                    final_img.save(output_path)
+                    resized_img.save(output_path)
                     print(f'{file_path} -> {output_path}')
     print(f"Done, all count: {count}")
 

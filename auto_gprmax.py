@@ -73,7 +73,7 @@ def generateBscan(TEXT_IN, regenerate, geometry, describe):
             f.write(describe)
             f.close()
 
-def generate():
+def AutoGprmax():
     TEXT_IN = conf.TEXT_INTACT_ROAD + RandomCavity()[0]
     DESCRIBE = RandomCavity()[1]
     if conf.GENGERATE_MODE == 'geo':
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         conf.AIR_CAVITY_NUM = int(argv[1])  # Get the first parameter
         conf.WATER_CAVITY_NUM = int(argv[2])  # Get the second parameter
         print(f"air_cavity_num: {conf.AIR_CAVITY_NUM}, water_cavity_num: {conf.WATER_CAVITY_NUM}")
-    generate()
+    AutoGprmax()
 
 
 
