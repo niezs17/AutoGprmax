@@ -1,38 +1,9 @@
 import os
 import shutil
 
-# def exponential_gain(image_data, a=1.3, b=3.1, ymax=500):
-#     x = np.arange(1, len(image_data) + 1)
-#     y = a ** (x * 1e-2) - b
-#     # Limiting the gain
-#     y = np.clip(y, None, ymax)
-#
-#     # Check if image_data is 1D or 2D and apply gain accordingly
-#     if image_data.ndim == 1:
-#         image_data = image_data * y
-#     else:
-#         image_data = image_data * y[:, np.newaxis]
-#
-#     col_num = image_data.shape[1]
-#     row_num = image_data.shape[0]
-#     for i in range(col_num):
-#         # 计算平均值
-#         median_value = np.median(image_data[:, i])
-#         # print(f"col_before: {np.array(image_data[:, i])}")
-#         # print(f"median_values: {median_value}")
-#         image_data[:, i] = image_data[:, i] - median_value
-#         # for j in range(row_num):
-#             # if image_data[j, i] < median_value:
-#             #     image_data[:, i] = image_data[:, i] + median_value * weight
-#             # else:
-#             #     image_data[:, i] = image_data[:, i] - median_value * weight
-#         # print(f"col_then  : {np.array(image_data[:, i])}")
-#     return image_data
-
-
-def count_all_jpgs():
+def countAllJpgs():
     """
-    对生成图片统计
+    Count all generated images
     """
     goal = 300
     count_sum = 0
@@ -48,7 +19,7 @@ def count_all_jpgs():
                  'air1_water1': 0}
         for basic_dir in os.listdir(os.path.join(root_dir, date_dir)):
             # print(os.path.join(basic_dir))
-            if not basic_dir.lower().startswith('result') :
+            if not basic_dir.lower().startswith('result'):
                 print(basic_dir)
                 count[f"air{''.join(basic_dir)[10]}_water{''.join(basic_dir)[18]}"] += 1
                 all_count[f"air{''.join(basic_dir)[10]}_water{''.join(basic_dir)[18]}"] += 1
@@ -65,12 +36,11 @@ def count_all_jpgs():
     print(f"sum: {count_sum:>5}")
     print("***************************************************")
 
-
-def classify_all_jpgs(way):
+def classifyAllJpgs(way):
     """
-    对生成图片分类保存
-    :way='date':     按时间分类保存
-    :way='content':  按内容分类保存
+    Classify and save generated images
+    :way='date':     Save by date
+    :way='content':  Save by content
     :return: None
     """
     new_file = []
@@ -90,7 +60,7 @@ def classify_all_jpgs(way):
         return
 
     for root, dirs, files in os.walk('B-scan'):
-        # 跳过result目录中的文件
+        # Skip files in the result directory
         if 'result' in root:
             continue
 
@@ -132,41 +102,40 @@ def classify_all_jpgs(way):
     else:
         print("No files overwrote")
 
-
-def remove_all_jpgs(way):
+def removeAllJpgs(way):
     """
-    安全删除图像
-    :way='date':     删除时间分类文件夹
-    :way='content':  删除内容分类文件夹
+    Safely remove images
+    :way='date':     Remove date-classified folders
+    :way='content':  Remove content-classified folders
     :return: None
     """
-    # 遍历root_dir下的所有文件和文件夹
+    # Traverse all files and folders under root_dir
     remove_file = []
     if way == 'date':
-        print("\nRomove by date...\n")
+        print("\nRemove by date...\n")
         for root, dirs, files in os.walk('B-scan'):
-            # 检查当前目录名是否为result
+            # Check if the current directory is result
             if os.path.basename(root) == 'result':
-                # 遍历当前result文件夹下的所有文件
+                # Traverse all files under the current result folder
                 for file in files:
-                    # 假设图片文件的扩展名为.jpg等
+                    # Assume image file extensions are .jpg, etc.
                     if file.lower().endswith('.jpg') and file.lower().startswith('bscan'):
-                        # 构建图片的完整路径
+                        # Construct the full path of the image
                         file_path = os.path.join(root, file)
                         remove_file.append(f"remove: {file_path}\n")
-                        # 删除图片
+                        # Delete the image
                         os.remove(file_path)
     elif way == 'content':
         print("\nRemove by content...\n")
         for root, dirs, files in os.walk('figure'):
-            # 遍历当前figure文件夹下的所有文件
+            # Traverse all files under the current figure folder
             for file in files:
-                # 假设图片文件的扩展名为.jpg等
+                # Assume image file extensions are .jpg, etc.
                 if file.lower().endswith('.jpg') and file.lower().startswith('bscan'):
-                    # 构建图片的完整路径
+                    # Construct the full path of the image
                     file_path = os.path.join(root, file)
                     remove_file.append(f"remove: {file_path}\n")
-                    # 删除图片
+                    # Delete the image
                     os.remove(file_path)
     else:
         print("args error: \'way\'")
@@ -176,29 +145,13 @@ def remove_all_jpgs(way):
     else:
         print(f"No files removed")
 
-
-# def exponential_gain(data, a=1.3, b=3.1, ymax=500):
-#     x = np.arange(1, len(data) + 1)
-#     y = a ** (x * 1e-2) - b
-#     # Limiting the gain
-#     y = np.clip(y, None, ymax)
-#
-#     # Check if data is 1D or 2D and apply gain accordingly
-#     if data.ndim == 1:
-#         data = data * y
-#     else:
-#         data = data * y[:, np.newaxis]
-#
-#     return data
-
-def file():
+def reorganize():
     os.system('cls' if os.name == 'nt' else 'clear')
-    # remove_all_jpgs(way='date')
-    # remove_all_jpgs(way='content')
-    classify_all_jpgs(way='date')
-    classify_all_jpgs(way='content')
-    count_all_jpgs()
-
+    # removeAllJpgs(way='date')
+    # removeAllJpgs(way='content')
+    classifyAllJpgs(way='date')
+    classifyAllJpgs(way='content')
+    countAllJpgs()
 
 if __name__ == '__main__':
-    file()
+    reorganize()

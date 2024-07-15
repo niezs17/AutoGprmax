@@ -1,30 +1,139 @@
 from PIL import Image
 import numpy as np
 import os
-from tools.plot_Bscan import normalized_mpl_plot
+import matplotlib.pyplot as plt
+from tools.plot_Bscan import normalizedMplPlot
 from tools.outputfiles_merge import get_output_data
-from file import file
+from file import reorganize
 
+def medianFilter(image_data):
+    row_num = image_data.shape[1]
+    for j in range(0, row_num):
+        median_value = np.median(image_data[:, j])
+        for i in range(0, 2189):
+                image_data[i, j] = image_data[i, j] - median_value
+                # image_data[i, j] = 0
+    return image_data
 
-def crop_figure(output_root_dir="./processed_figure", root_dir="./figure"):
-    # 裁剪根目录下所有.jpg格式图片
-    # 指定处理后的图片存储路径
-    # 输入处理后图片的尺寸
+def exponentialGain(image_data, ymax, a=1.3,b=3.2):
+    for _ymax_ in ymax[:1]:
+        x = np.arange(1, len(image_data) + 1)
+        y = a ** (x * 1e-2) - b 
+        y = np.clip(y, None, _ymax_)
+
+        if image_data.ndim == 1:
+            image_data = image_data * y
+        else:
+            image_data = image_data * y[:, np.newaxis]
+    return image_data
+
+def mplPlot(filename, outputdata, dt, rxnumber, rxcomponent):
+    """Creates a plot (with matplotlib) of the B-scan.
+
+    Args:
+        filename (string): Filename (including path) of output file.
+        outputdata (array): Array of A-scans, i.e. B-scan data.
+        dt (float): Temporal resolution of the model.
+        rxnumber (int): Receiver output number.
+        rxcomponent (str): Receiver output field/current component.
+
+    Returns:
+        plt (object): matplotlib plot object.
+    """
+
+    (path, filename) = os.path.split(filename)
+
+    fig = plt.figure(num=filename + ' - rx' + str(rxnumber), 
+                     figsize=(20, 10), facecolor='w', edgecolor='w')
+    plt.imshow(outputdata, 
+               extent=[0, outputdata.shape[1], outputdata.shape[0] * dt, 0],
+               interpolation='nearest', aspect='auto', cmap='seismic', 
+               vmin=-np.amax(np.abs(outputdata)), vmax=np.amax(np.abs(outputdata)))
+    plt.xlabel('Trace number')
+    plt.ylabel('Time [s]')
+    # plt.title('{}'.format(filename))
+
+    # Grid properties
+    ax = fig.gca()
+    ax.grid(which='both', axis='both', linestyle='-.')
+
+    cb = plt.colorbar()
+    if 'E' in rxcomponent:
+        cb.set_label('Field strength [V/m]')
+    elif 'H' in rxcomponent:
+        cb.set_label('Field strength [A/m]')
+    elif 'I' in rxcomponent:
+        cb.set_label('Current [A]')
+
+    # Save a PDF/PNG of the figure
+    # savefile = os.path.splitext(filename)[0]
+    # fig.savefig(path + os.sep + savefile + '.pdf', dpi=None, format='pdf', 
+    #             bbox_inches='tight', pad_inches=0.1)
+    # fig.savefig(path + os.sep + savefile + '.png', dpi=150, format='png', 
+    #             bbox_inches='tight', pad_inches=0.1)
+
+    return plt
+
+def normalizedMplPlot(filename, outputdata, dt, rxnumber, rxcomponent, ascan_times, time_window, ymax, plot_filter):
+    """Creates a plot (with matplotlib) of the B-scan.
+
+    Args:
+        filename (string): Filename (including path) of output file.
+        outputdata (array): Array of A-scans, i.e. B-scan data.
+        dt (float): Temporal resolution of the model.
+        rxnumber (int): Receiver output number.
+        rxcomponent (str): Receiver output field/current component.
+
+    Returns:
+        plt (object): matplotlib plot object.
+    """
+
+    plt.figure(num=filename + ' - rx' + str(rxnumber),
+                     figsize=(6,6), facecolor='w', edgecolor='w')
+
+    if plot_filter == 'e':
+        outputdata = exponentialGain(outputdata, ymax)
+    elif plot_filter == 'f':
+        outputdata = medianFilter(outputdata)
+    elif plot_filter == 'ee':
+        outputdata = exponentialGain(outputdata, ymax)
+        outputdata = exponentialGain(outputdata, ymax)
+    elif plot_filter == 'ef':
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+        outputdata = medianFilter(outputdata)
+    elif plot_filter == 'fe':
+        outputdata = medianFilter(outputdata)
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+    elif plot_filter == 'eef':
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+        outputdata = medianFilter(outputdata)
+    elif plot_filter == 'efe':
+        outputdata = medianFilter(outputdata)
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+        outputdata = medianFilter(outputdata)
+    elif plot_filter == 'fee':
+        outputdata = medianFilter(outputdata)
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+        outputdata = exponentialGain(outputdata, ymax=ymax)
+    else:
+        outputdata = outputdata
+
+    plt.imshow(outputdata,
+               extent=[0, outputdata.shape[1], outputdata.shape[0] * dt, 0],
+               interpolation='nearest', aspect='auto', cmap='gray',
+               vmin=-np.amax(np.abs(outputdata)), vmax=np.amax(np.abs(outputdata)))
+    
+    plt.axis('off')
+    return plt
+
+def cropFigure(output_root_dir="./processed_figure", root_dir="./figure"):
+    # Crop all .jpg images in the root directory
+    # Specify the path to store processed images
+    # Input the size of the processed images
     target_width = 400
     target_height = 600
-
-    # 输入裁剪的坐标范围
-    left = 51
-    top = 73
-    right = 360
-    bottom = 534
-
-    count = 0
-
-    # left = 0
-    # top = 0
-    # right = 400
-    # bottom = 600
+    left, top, right, bottom, count= 51, 73, 360, 534, 0
     if not os.path.exists(output_root_dir):
         os.makedirs(output_root_dir)
     for root, dirs, files in os.walk(root_dir):
@@ -37,16 +146,8 @@ def crop_figure(output_root_dir="./processed_figure", root_dir="./figure"):
                     cropped_img = img.crop((left, top, right, bottom))
                     # 调整图片尺寸
                     resized_img = cropped_img.resize((target_width, target_height), Image.LANCZOS)
-
                     # 将PIL图像转换为OpenCV图像
                     open_cv_image = np.array(resized_img)
-
-                    # open_cv_image = exponential_gain(open_cv_image)
-
-                    # 应用中值滤波
-                    # median_filtered_image = cv2.medianBlur(open_cv_image, 5)
-                    # median_filtered_image = median_filter(open_cv_image)
-
                     # 将OpenCV图像转换回PIL图像以保存(
                     final_img = Image.fromarray(open_cv_image)
                     # 保存处理后的图片
@@ -58,43 +159,30 @@ def crop_figure(output_root_dir="./processed_figure", root_dir="./figure"):
                     print(f'{file_path} -> {output_path}')
     print(f"Done, all count: {count}")
 
-
-def get_ymax(in_file_path):
+def getYmax(in_file_path):
     if not in_file_path.endswith('.in'):
         return 580
     else:
         with open(in_file_path, 'r') as file:
             text = file.readlines()
-            # 这里写死了.in文件不变的部分为16行，待更改
+            # The unchanged part of the .in file is fixed at 16 lines, to be updated
             depth = []
             for element_line in text[16 - len(text):]:
                 element = element_line.split()[0]
                 if element == '#cylinder:':
                     depth.append(float(element_line.split()[2]))
                 elif element == '#box:':
-                    depth.append((float(element_line.split()[5]) + float(element_line.split()[2]))/2)
+                    depth.append((float(element_line.split()[5]) + float(element_line.split()[2])) / 2)
                 else:
                     pass
             depth = np.array(depth)
     ymax = np.int32(40 * (37.8 * (1 - depth) - 15) + 100)
     return ymax
 
-
-def generate_figure(out_file_path, save_file_path, outputdata, dt, ascan_times, time_window, plot_filter,
-                    ymax=np.array([580])):
-    plt = normalized_mpl_plot(out_file_path, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window,
-                              ymax, plot_filter)
-    # save_file_path = os.path.join(figure_path, plot_filter)
-    # if not os.path.exists(save_file_path):
-    #     os.mkdir(save_file_path)
-    # if not plot_filter == 'none':
-    #     save_file_path = os.path.join(figure_path, plot_filter, f'ymax={ymax}.jpg')
-    # else:
-    #     save_file_path = os.path.join(figure_path, plot_filter, f'none.jpg')
-    # plt.savefig(save_file_path)
+def generateFigure(out_file_path, save_file_path, outputdata, dt, ascan_times, time_window, plot_filter, ymax=np.array([580])):
+    plt = normalizedMplPlot(out_file_path, outputdata, dt * 1e9, 1, 'Ex', ascan_times, time_window, ymax, plot_filter)
     plt.close()
     print(f"looking *.out/*.in files in {save_file_path}, ymax = {ymax}, filter = {plot_filter}")
-
 
 def plot(ascan_times=120, time_window=20e-9, all_count=0, plot_filter='none'):
     root_dir = "./B-scan"
@@ -103,7 +191,7 @@ def plot(ascan_times=120, time_window=20e-9, all_count=0, plot_filter='none'):
     for root, dirs, files in os.walk(root_dir):
         for dirname in dirs:
             if dirname.lower().startswith("basic"):
-                # figure文件夹的绝对路径
+                # Absolute path of the figure folder
                 figure_path = os.path.join(root, dirname)
                 out_file_path = os.path.join(figure_path, "Ascan_merged.out")
                 in_file_path = os.path.join(figure_path, "Ascan.in")
@@ -113,24 +201,18 @@ def plot(ascan_times=120, time_window=20e-9, all_count=0, plot_filter='none'):
                 info = f"{dirname[6:]}"
                 save_file_path = os.path.join(figure_path, f"bscan_{info}.jpg")
                 outputdata, dt = get_output_data(out_file_path, 1, 'Ez')
-                ymax = get_ymax(in_file_path)
-                generate_figure(out_file_path, save_file_path, outputdata, dt, ascan_times,
-                                time_window, plot_filter, ymax)
+                ymax = getYmax(in_file_path)
+                generateFigure(out_file_path, save_file_path, outputdata, dt, ascan_times, time_window, plot_filter, ymax)
+                cropFigure()
                 count += 1
                 if count >= all_count != 0:
                     return
-                # print(f"figure_path:{figure_path}")
-                # print(f"out_file_path:{out_file_path}")
-                # print(f"save_file_path:{save_file_path}")
     if len(ashbin) > 0:
         print(f"*.out files not found in these folders")
         print(''.join(ashbin))
     else:
         print("procession: \'plot\' all success")
 
-
-
 if __name__ == "__main__":
-    plot( all_count=0, plot_filter='eef')
-    # file()
-    # print(get_ymax('E:\\PAPPER\\PROCESS\\GprMax\\gpr_in\\B-scan\\2024-03-05\\basic_air_1_water_1_49\\Ascan.in'))
+    reorganize()
+    plot(all_count=1, plot_filter='eef')

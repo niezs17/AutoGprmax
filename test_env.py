@@ -1,6 +1,6 @@
 """
-        此脚本用于测试gprMax+pycuda+cuda+python环境搭建的正确性
-        来源: https://documen.tician.de/pycuda/
+        This script is used to test the correctness of the gprMax+pycuda+cuda+python environment
+        Source: https://documen.tician.de/pycuda/
 """
 
 import pycuda.driver as drv
