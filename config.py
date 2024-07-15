@@ -8,7 +8,7 @@ DY = 0.0025
 DZ = 0.0025
 
 GENGERATE_MODE = 'scan'
-ASCAN_TIMES = 10
+ASCAN_TIMES = 120
 # Road model without defects
 TEXT_INTACT_ROAD = ("#domain: 4.00 1.40 0.0025\n"
                 f"#dx_dy_dz: {DX} {DY} {DZ}\n"
