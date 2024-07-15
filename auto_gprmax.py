@@ -63,7 +63,7 @@ def generateBscan(TEXT_IN, regenerate, geometry, describe):
     if (regenerate and not geometry) or (not regenerate):
         out_file_name = f"{figure_path}/Ascan_merged.out"
         outputdata, dt = get_output_data(out_file_name, 1, 'Ez')
-        plt = normalizedMplPlot(out_file_name, outputdata, dt * 1e9, 1, ymax=getYmax(in_file_name), plot_filter='fee')
+        plt = normalizedMplPlot(out_file_name, outputdata, dt * 1e9, 1, ymax=getYmax(in_file_name), plot_filter=conf.PLOT_FILTER)
         plt.savefig(f"{figure_path}/bscan_{info}_{figure_number}.jpg")
         plt.close()
         print(f"looking *.out/*.in files in {figure_path}")

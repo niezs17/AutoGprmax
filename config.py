@@ -2,13 +2,13 @@
 AIR_CAVITY_NUM = 1
 WATER_CAVITY_NUM = 1
 RANDOM_PARA = {'x1': 0.4, 'y1': 0.35, 'z1': 0, 'x2': 3.6, 'y2': 0.7, 'z2': 0.0025, 'r_min': 0.025, 'r_max': 0.05}
+TIME_WINDOW = 32e-9
+DX = 0.0025
+DY = 0.0025
+DZ = 0.0025
+
 GENGERATE_MODE = 'scan'
 ASCAN_TIMES = 10
-TIME_WINDOW = 32e-9
-DX =  0.0025
-DY =  0.0025
-DZ =  0.0025
-
 # Road model without defects
 TEXT_INTACT_ROAD = ("#domain: 4.00 1.40 0.0025\n"
                 f"#dx_dy_dz: {DX} {DY} {DZ}\n"
@@ -26,4 +26,6 @@ TEXT_INTACT_ROAD = ("#domain: 4.00 1.40 0.0025\n"
                 "#box: 0.00 1.00 0.00 4.00 1.15 0.0025 concrete\n"
                 "#box: 0.00 1.15 0.00 4.00 1.30 0.0025 asphalt\n"
                 "#box: 0.00 1.30 0.00 4.00 1.40 0.0025 free_space\n")
+
+PLOT_FILTER = 'fee'
 TEXT_GEO = "#geometry_view: 0 0 0 4.00 1.40 0.0025 0.0025 0.0025 0.0025 basic n \n"

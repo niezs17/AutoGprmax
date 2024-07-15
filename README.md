@@ -1,1335 +1,200 @@
-# 生成目标
+# AutoGprmax User Guide
 
-air2_water1: 300张(2d) 294 2d 22无效 择日 30 
+## Basic Overview
 
-16 17 18 19 20 21 22 23 31 32 33 34 35 37 38 40 41 49 51 52 53 61 62 64 65 66 67 68  69 70 71 81 82 
+### gprMax
 
-83 84 85 
+GprMax is an open-source software based on the Finite-Difference Time-Domain (FDTD) method, primarily used for forward simulation processes in Ground Penetrating Radar (GPR). This software simulates the propagation of electromagnetic waves through various media, helping users understand and predict the performance of GPR systems in real geological environments.
 
-air1_water2: 300张(2d) 301 2d done
+GprMax can be operated on either CPU or GPU. Its CPU solver is parallelized using [OpenMP](http://openmp.org/wp/), enabling it to run efficiently on multi-core CPUs. The GPU solver, developed with the [NVIDIA CUDA](https://developer.nvidia.com/cuda-zone) programming model, further optimizes performance. Additionally, gprMax includes a [Message Passing Interface (MPI)](https://en.wikipedia.org/wiki/Message_Passing_Interface) task farm, compatible with CPU nodes or multiple GPUs.
 
-air3_water0: 300张(2d)  
+GprMax requires users to create simple text files (`.in` files) to configure simulation scenarios. These files define the simulation's geometric structures, material properties, source signals, and receiver characteristics. This setup makes gprMax versatile, suitable not only for researchers studying geological radar but also for educational and industrial applications. Here is an example of what a typical `.in` file looks like:
 
-air0_water3: 300张(2d) 
+```plaintext
+#domain: 4.00 1.40 0.0025       
+#dx_dy_dz: 0.0025 0.0025 0.0025   
+#time_window: 3.2e-08
+#waveform: ricker 1.0 600e6 my_ricker
+#hertzian_dipole: z 0.0875 1.305 0 my_ricker
+#rx: 0.1125 1.305 0
+#src_steps: 0.031 0.0 0
+#rx_steps: 0.031 0.0 0
+#material: 4 0.005 1 0 asphalt
+#material: 9 0.05 1 0 concrete
+#material: 12 0.1 1 0 soilbase
+#material: 81 0.03 1 0 water
+#box: 0.00 0.00 0.00 4.00 1.00 0.0025 soilbase
+#box: 0.00 1.00 0.00 4.00 1.15 0.0025 concrete
+#box: 0.00 1.15 0.00 4.00 1.30 0.0025 asphalt
+#box: 0.00 1.30 0.00 4.00 1.40 0.0025 free_space
+#box: 2.787 0.604 0 2.84 0.657 0.0025 water
+```
 
+After the numerical calculations based on the `.in` files, gprMax outputs 3D GPR forward simulation results as binary files (`*.out`), generating data bodies and forward simulation images (including A-scan, B-scan, C-scan).
 
+For more information on using gprMax, please visit:
 
-# 文件树
+- [gprMax official documentation](http://docs.gprmax.com/en/latest/)
+- [gprMax official website](http://www.gprmax.com)
 
-├─.idea
-│  └─inspectionProfiles
-├─B-scan
-│  ├─2024-02-08
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  ├─2
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  
-│  │  └─result
-│  ├─2024-02-10
-│  │  ├─basic_air_2_water_1_1
-│  │  ├─basic_air_2_water_1_10
-│  │  ├─basic_air_2_water_1_100
-│  │  ├─basic_air_2_water_1_101
-│  │  ├─basic_air_2_water_1_102
-│  │  ├─basic_air_2_water_1_103
-│  │  ├─basic_air_2_water_1_104
-│  │  ├─basic_air_2_water_1_105
-│  │  ├─basic_air_2_water_1_106
-│  │  ├─basic_air_2_water_1_107
-│  │  ├─basic_air_2_water_1_108
-│  │  ├─basic_air_2_water_1_109
-│  │  ├─basic_air_2_water_1_11
-│  │  ├─basic_air_2_water_1_110
-│  │  ├─basic_air_2_water_1_111
-│  │  ├─basic_air_2_water_1_112
-│  │  ├─basic_air_2_water_1_113
-│  │  ├─basic_air_2_water_1_114
-│  │  ├─basic_air_2_water_1_115
-│  │  ├─basic_air_2_water_1_116
-│  │  ├─basic_air_2_water_1_117
-│  │  ├─basic_air_2_water_1_118
-│  │  ├─basic_air_2_water_1_119
-│  │  ├─basic_air_2_water_1_12
-│  │  ├─basic_air_2_water_1_120
-│  │  ├─basic_air_2_water_1_121
-│  │  ├─basic_air_2_water_1_122
-│  │  ├─basic_air_2_water_1_123
-│  │  ├─basic_air_2_water_1_124
-│  │  ├─basic_air_2_water_1_125
-│  │  ├─basic_air_2_water_1_126
-│  │  ├─basic_air_2_water_1_127
-│  │  ├─basic_air_2_water_1_128
-│  │  ├─basic_air_2_water_1_13
-│  │  ├─basic_air_2_water_1_14
-│  │  ├─basic_air_2_water_1_15
-│  │  ├─basic_air_2_water_1_16
-│  │  ├─basic_air_2_water_1_17
-│  │  ├─basic_air_2_water_1_18
-│  │  ├─basic_air_2_water_1_19
-│  │  ├─basic_air_2_water_1_2
-│  │  ├─basic_air_2_water_1_20
-│  │  ├─basic_air_2_water_1_21
-│  │  ├─basic_air_2_water_1_22
-│  │  ├─basic_air_2_water_1_23
-│  │  ├─basic_air_2_water_1_24
-│  │  ├─basic_air_2_water_1_25
-│  │  ├─basic_air_2_water_1_26
-│  │  ├─basic_air_2_water_1_27
-│  │  ├─basic_air_2_water_1_28
-│  │  ├─basic_air_2_water_1_29
-│  │  ├─basic_air_2_water_1_3
-│  │  ├─basic_air_2_water_1_30
-│  │  ├─basic_air_2_water_1_31
-│  │  ├─basic_air_2_water_1_32
-│  │  ├─basic_air_2_water_1_33
-│  │  ├─basic_air_2_water_1_34
-│  │  ├─basic_air_2_water_1_35
-│  │  ├─basic_air_2_water_1_36
-│  │  ├─basic_air_2_water_1_37
-│  │  ├─basic_air_2_water_1_38
-│  │  ├─basic_air_2_water_1_39
-│  │  ├─basic_air_2_water_1_4
-│  │  ├─basic_air_2_water_1_40
-│  │  ├─basic_air_2_water_1_41
-│  │  ├─basic_air_2_water_1_42
-│  │  ├─basic_air_2_water_1_43
-│  │  ├─basic_air_2_water_1_44
-│  │  ├─basic_air_2_water_1_45
-│  │  ├─basic_air_2_water_1_46
-│  │  ├─basic_air_2_water_1_47
-│  │  ├─basic_air_2_water_1_48
-│  │  ├─basic_air_2_water_1_49
-│  │  ├─basic_air_2_water_1_5
-│  │  ├─basic_air_2_water_1_50
-│  │  ├─basic_air_2_water_1_51
-│  │  ├─basic_air_2_water_1_52
-│  │  ├─basic_air_2_water_1_53
-│  │  ├─basic_air_2_water_1_54
-│  │  ├─basic_air_2_water_1_55
-│  │  ├─basic_air_2_water_1_56
-│  │  ├─basic_air_2_water_1_57
-│  │  ├─basic_air_2_water_1_58
-│  │  ├─basic_air_2_water_1_59
-│  │  ├─basic_air_2_water_1_6
-│  │  ├─basic_air_2_water_1_60
-│  │  ├─basic_air_2_water_1_61
-│  │  ├─basic_air_2_water_1_62
-│  │  ├─basic_air_2_water_1_63
-│  │  ├─basic_air_2_water_1_64
-│  │  ├─basic_air_2_water_1_65
-│  │  ├─basic_air_2_water_1_66
-│  │  ├─basic_air_2_water_1_67
-│  │  ├─basic_air_2_water_1_68
-│  │  ├─basic_air_2_water_1_69
-│  │  ├─basic_air_2_water_1_7
-│  │  ├─basic_air_2_water_1_70
-│  │  ├─basic_air_2_water_1_71
-│  │  ├─basic_air_2_water_1_72
-│  │  ├─basic_air_2_water_1_73
-│  │  ├─basic_air_2_water_1_74
-│  │  ├─basic_air_2_water_1_75
-│  │  ├─basic_air_2_water_1_76
-│  │  ├─basic_air_2_water_1_77
-│  │  ├─basic_air_2_water_1_78
-│  │  ├─basic_air_2_water_1_79
-│  │  ├─basic_air_2_water_1_8
-│  │  ├─basic_air_2_water_1_80
-│  │  ├─basic_air_2_water_1_81
-│  │  ├─basic_air_2_water_1_82
-│  │  ├─basic_air_2_water_1_83
-│  │  ├─basic_air_2_water_1_84
-│  │  ├─basic_air_2_water_1_85
-│  │  ├─basic_air_2_water_1_86
-│  │  ├─basic_air_2_water_1_87
-│  │  ├─basic_air_2_water_1_88
-│  │  ├─basic_air_2_water_1_89
-│  │  ├─basic_air_2_water_1_9
-│  │  ├─basic_air_2_water_1_90
-│  │  ├─basic_air_2_water_1_91
-│  │  ├─basic_air_2_water_1_92
-│  │  ├─basic_air_2_water_1_93
-│  │  ├─basic_air_2_water_1_94
-│  │  ├─basic_air_2_water_1_95
-│  │  ├─basic_air_2_water_1_96
-│  │  ├─basic_air_2_water_1_97
-│  │  ├─basic_air_2_water_1_98
-│  │  ├─basic_air_2_water_1_99
-│  │  └─result
-│  ├─2024-02-11
-│  │  ├─basic_air_1_water_2_1
-│  │  ├─basic_air_1_water_2_10
-│  │  ├─basic_air_1_water_2_100
-│  │  ├─basic_air_1_water_2_101
-│  │  ├─basic_air_1_water_2_102
-│  │  ├─basic_air_1_water_2_103
-│  │  ├─basic_air_1_water_2_104
-│  │  ├─basic_air_1_water_2_105
-│  │  ├─basic_air_1_water_2_106
-│  │  ├─basic_air_1_water_2_107
-│  │  ├─basic_air_1_water_2_108
-│  │  ├─basic_air_1_water_2_109
-│  │  ├─basic_air_1_water_2_11
-│  │  ├─basic_air_1_water_2_110
-│  │  ├─basic_air_1_water_2_111
-│  │  ├─basic_air_1_water_2_112
-│  │  ├─basic_air_1_water_2_113
-│  │  ├─basic_air_1_water_2_114
-│  │  ├─basic_air_1_water_2_115
-│  │  ├─basic_air_1_water_2_116
-│  │  ├─basic_air_1_water_2_117
-│  │  ├─basic_air_1_water_2_118
-│  │  ├─basic_air_1_water_2_12
-│  │  ├─basic_air_1_water_2_13
-│  │  ├─basic_air_1_water_2_14
-│  │  ├─basic_air_1_water_2_15
-│  │  ├─basic_air_1_water_2_16
-│  │  ├─basic_air_1_water_2_17
-│  │  ├─basic_air_1_water_2_18
-│  │  ├─basic_air_1_water_2_19
-│  │  ├─basic_air_1_water_2_2
-│  │  ├─basic_air_1_water_2_20
-│  │  ├─basic_air_1_water_2_21
-│  │  ├─basic_air_1_water_2_22
-│  │  ├─basic_air_1_water_2_23
-│  │  ├─basic_air_1_water_2_24
-│  │  ├─basic_air_1_water_2_25
-│  │  ├─basic_air_1_water_2_26
-│  │  ├─basic_air_1_water_2_27
-│  │  ├─basic_air_1_water_2_28
-│  │  ├─basic_air_1_water_2_29
-│  │  ├─basic_air_1_water_2_3
-│  │  ├─basic_air_1_water_2_30
-│  │  ├─basic_air_1_water_2_31
-│  │  ├─basic_air_1_water_2_32
-│  │  ├─basic_air_1_water_2_33
-│  │  ├─basic_air_1_water_2_34
-│  │  ├─basic_air_1_water_2_35
-│  │  ├─basic_air_1_water_2_36
-│  │  ├─basic_air_1_water_2_37
-│  │  ├─basic_air_1_water_2_38
-│  │  ├─basic_air_1_water_2_39
-│  │  ├─basic_air_1_water_2_4
-│  │  ├─basic_air_1_water_2_40
-│  │  ├─basic_air_1_water_2_41
-│  │  ├─basic_air_1_water_2_42
-│  │  ├─basic_air_1_water_2_43
-│  │  ├─basic_air_1_water_2_44
-│  │  ├─basic_air_1_water_2_45
-│  │  ├─basic_air_1_water_2_46
-│  │  ├─basic_air_1_water_2_47
-│  │  ├─basic_air_1_water_2_48
-│  │  ├─basic_air_1_water_2_49
-│  │  ├─basic_air_1_water_2_5
-│  │  ├─basic_air_1_water_2_50
-│  │  ├─basic_air_1_water_2_51
-│  │  ├─basic_air_1_water_2_52
-│  │  ├─basic_air_1_water_2_53
-│  │  ├─basic_air_1_water_2_54
-│  │  ├─basic_air_1_water_2_55
-│  │  ├─basic_air_1_water_2_56
-│  │  ├─basic_air_1_water_2_57
-│  │  ├─basic_air_1_water_2_58
-│  │  ├─basic_air_1_water_2_59
-│  │  ├─basic_air_1_water_2_6
-│  │  ├─basic_air_1_water_2_60
-│  │  ├─basic_air_1_water_2_61
-│  │  ├─basic_air_1_water_2_62
-│  │  ├─basic_air_1_water_2_63
-│  │  ├─basic_air_1_water_2_64
-│  │  ├─basic_air_1_water_2_65
-│  │  ├─basic_air_1_water_2_66
-│  │  ├─basic_air_1_water_2_67
-│  │  ├─basic_air_1_water_2_68
-│  │  ├─basic_air_1_water_2_69
-│  │  ├─basic_air_1_water_2_7
-│  │  ├─basic_air_1_water_2_70
-│  │  ├─basic_air_1_water_2_71
-│  │  ├─basic_air_1_water_2_72
-│  │  ├─basic_air_1_water_2_73
-│  │  ├─basic_air_1_water_2_74
-│  │  ├─basic_air_1_water_2_75
-│  │  ├─basic_air_1_water_2_76
-│  │  ├─basic_air_1_water_2_77
-│  │  ├─basic_air_1_water_2_78
-│  │  ├─basic_air_1_water_2_79
-│  │  ├─basic_air_1_water_2_8
-│  │  ├─basic_air_1_water_2_80
-│  │  ├─basic_air_1_water_2_81
-│  │  ├─basic_air_1_water_2_82
-│  │  ├─basic_air_1_water_2_83
-│  │  ├─basic_air_1_water_2_84
-│  │  ├─basic_air_1_water_2_85
-│  │  ├─basic_air_1_water_2_86
-│  │  ├─basic_air_1_water_2_87
-│  │  ├─basic_air_1_water_2_88
-│  │  ├─basic_air_1_water_2_89
-│  │  ├─basic_air_1_water_2_9
-│  │  ├─basic_air_1_water_2_90
-│  │  ├─basic_air_1_water_2_91
-│  │  ├─basic_air_1_water_2_92
-│  │  ├─basic_air_1_water_2_93
-│  │  ├─basic_air_1_water_2_94
-│  │  ├─basic_air_1_water_2_95
-│  │  ├─basic_air_1_water_2_96
-│  │  ├─basic_air_1_water_2_97
-│  │  ├─basic_air_1_water_2_98
-│  │  ├─basic_air_1_water_2_99
-│  │  ├─basic_air_2_water_1_1
-│  │  ├─basic_air_2_water_1_2
-│  │  └─result
-│  ├─2024-02-12
-│  │  ├─basic_air_1_water_2_1
-│  │  ├─basic_air_1_water_2_10
-│  │  ├─basic_air_1_water_2_100
-│  │  ├─basic_air_1_water_2_101
-│  │  ├─basic_air_1_water_2_102
-│  │  ├─basic_air_1_water_2_103
-│  │  ├─basic_air_1_water_2_104
-│  │  ├─basic_air_1_water_2_105
-│  │  ├─basic_air_1_water_2_106
-│  │  ├─basic_air_1_water_2_107
-│  │  ├─basic_air_1_water_2_108
-│  │  ├─basic_air_1_water_2_109
-│  │  ├─basic_air_1_water_2_11
-│  │  ├─basic_air_1_water_2_110
-│  │  ├─basic_air_1_water_2_111
-│  │  ├─basic_air_1_water_2_112
-│  │  ├─basic_air_1_water_2_113
-│  │  ├─basic_air_1_water_2_114
-│  │  ├─basic_air_1_water_2_115
-│  │  ├─basic_air_1_water_2_12
-│  │  ├─basic_air_1_water_2_13
-│  │  ├─basic_air_1_water_2_14
-│  │  ├─basic_air_1_water_2_15
-│  │  ├─basic_air_1_water_2_16
-│  │  ├─basic_air_1_water_2_17
-│  │  ├─basic_air_1_water_2_18
-│  │  ├─basic_air_1_water_2_19
-│  │  ├─basic_air_1_water_2_2
-│  │  ├─basic_air_1_water_2_20
-│  │  ├─basic_air_1_water_2_21
-│  │  ├─basic_air_1_water_2_22
-│  │  ├─basic_air_1_water_2_23
-│  │  ├─basic_air_1_water_2_24
-│  │  ├─basic_air_1_water_2_25
-│  │  ├─basic_air_1_water_2_26
-│  │  ├─basic_air_1_water_2_27
-│  │  ├─basic_air_1_water_2_28
-│  │  ├─basic_air_1_water_2_29
-│  │  ├─basic_air_1_water_2_3
-│  │  ├─basic_air_1_water_2_30
-│  │  ├─basic_air_1_water_2_31
-│  │  ├─basic_air_1_water_2_32
-│  │  ├─basic_air_1_water_2_33
-│  │  ├─basic_air_1_water_2_34
-│  │  ├─basic_air_1_water_2_35
-│  │  ├─basic_air_1_water_2_36
-│  │  ├─basic_air_1_water_2_37
-│  │  ├─basic_air_1_water_2_38
-│  │  ├─basic_air_1_water_2_39
-│  │  ├─basic_air_1_water_2_4
-│  │  ├─basic_air_1_water_2_40
-│  │  ├─basic_air_1_water_2_41
-│  │  ├─basic_air_1_water_2_42
-│  │  ├─basic_air_1_water_2_43
-│  │  ├─basic_air_1_water_2_44
-│  │  ├─basic_air_1_water_2_45
-│  │  ├─basic_air_1_water_2_46
-│  │  ├─basic_air_1_water_2_47
-│  │  ├─basic_air_1_water_2_48
-│  │  ├─basic_air_1_water_2_49
-│  │  ├─basic_air_1_water_2_5
-│  │  ├─basic_air_1_water_2_50
-│  │  ├─basic_air_1_water_2_51
-│  │  ├─basic_air_1_water_2_52
-│  │  ├─basic_air_1_water_2_53
-│  │  ├─basic_air_1_water_2_54
-│  │  ├─basic_air_1_water_2_55
-│  │  ├─basic_air_1_water_2_56
-│  │  ├─basic_air_1_water_2_57
-│  │  ├─basic_air_1_water_2_58
-│  │  ├─basic_air_1_water_2_59
-│  │  ├─basic_air_1_water_2_6
-│  │  ├─basic_air_1_water_2_60
-│  │  ├─basic_air_1_water_2_61
-│  │  ├─basic_air_1_water_2_62
-│  │  ├─basic_air_1_water_2_63
-│  │  ├─basic_air_1_water_2_64
-│  │  ├─basic_air_1_water_2_65
-│  │  ├─basic_air_1_water_2_66
-│  │  ├─basic_air_1_water_2_67
-│  │  ├─basic_air_1_water_2_68
-│  │  ├─basic_air_1_water_2_69
-│  │  ├─basic_air_1_water_2_7
-│  │  ├─basic_air_1_water_2_70
-│  │  ├─basic_air_1_water_2_71
-│  │  ├─basic_air_1_water_2_72
-│  │  ├─basic_air_1_water_2_73
-│  │  ├─basic_air_1_water_2_74
-│  │  ├─basic_air_1_water_2_75
-│  │  ├─basic_air_1_water_2_76
-│  │  ├─basic_air_1_water_2_77
-│  │  ├─basic_air_1_water_2_78
-│  │  ├─basic_air_1_water_2_79
-│  │  ├─basic_air_1_water_2_8
-│  │  ├─basic_air_1_water_2_80
-│  │  ├─basic_air_1_water_2_81
-│  │  ├─basic_air_1_water_2_82
-│  │  ├─basic_air_1_water_2_83
-│  │  ├─basic_air_1_water_2_84
-│  │  ├─basic_air_1_water_2_85
-│  │  ├─basic_air_1_water_2_86
-│  │  ├─basic_air_1_water_2_87
-│  │  ├─basic_air_1_water_2_88
-│  │  ├─basic_air_1_water_2_89
-│  │  ├─basic_air_1_water_2_9
-│  │  ├─basic_air_1_water_2_90
-│  │  ├─basic_air_1_water_2_91
-│  │  ├─basic_air_1_water_2_92
-│  │  ├─basic_air_1_water_2_93
-│  │  ├─basic_air_1_water_2_94
-│  │  ├─basic_air_1_water_2_95
-│  │  ├─basic_air_1_water_2_96
-│  │  ├─basic_air_1_water_2_97
-│  │  ├─basic_air_1_water_2_98
-│  │  ├─basic_air_1_water_2_99
-│  │  ├─basic_air_3_water_0_1
-│  │  ├─basic_air_3_water_0_10
-│  │  ├─basic_air_3_water_0_11
-│  │  ├─basic_air_3_water_0_2
-│  │  ├─basic_air_3_water_0_3
-│  │  ├─basic_air_3_water_0_4
-│  │  ├─basic_air_3_water_0_5
-│  │  ├─basic_air_3_water_0_6
-│  │  ├─basic_air_3_water_0_7
-│  │  ├─basic_air_3_water_0_8
-│  │  ├─basic_air_3_water_0_9
-│  │  └─result
-│  ├─2024-02-13
-│  │  ├─basic_air_3_water_0_1
-│  │  ├─basic_air_3_water_0_10
-│  │  ├─basic_air_3_water_0_100
-│  │  ├─basic_air_3_water_0_101
-│  │  ├─basic_air_3_water_0_102
-│  │  ├─basic_air_3_water_0_103
-│  │  ├─basic_air_3_water_0_104
-│  │  ├─basic_air_3_water_0_105
-│  │  ├─basic_air_3_water_0_106
-│  │  ├─basic_air_3_water_0_107
-│  │  ├─basic_air_3_water_0_108
-│  │  ├─basic_air_3_water_0_109
-│  │  ├─basic_air_3_water_0_11
-│  │  ├─basic_air_3_water_0_110
-│  │  ├─basic_air_3_water_0_111
-│  │  ├─basic_air_3_water_0_112
-│  │  ├─basic_air_3_water_0_113
-│  │  ├─basic_air_3_water_0_114
-│  │  ├─basic_air_3_water_0_115
-│  │  ├─basic_air_3_water_0_116
-│  │  ├─basic_air_3_water_0_117
-│  │  ├─basic_air_3_water_0_118
-│  │  ├─basic_air_3_water_0_119
-│  │  ├─basic_air_3_water_0_12
-│  │  ├─basic_air_3_water_0_120
-│  │  ├─basic_air_3_water_0_121
-│  │  ├─basic_air_3_water_0_122
-│  │  ├─basic_air_3_water_0_123
-│  │  ├─basic_air_3_water_0_124
-│  │  ├─basic_air_3_water_0_13
-│  │  ├─basic_air_3_water_0_14
-│  │  ├─basic_air_3_water_0_15
-│  │  ├─basic_air_3_water_0_16
-│  │  ├─basic_air_3_water_0_17
-│  │  ├─basic_air_3_water_0_18
-│  │  ├─basic_air_3_water_0_19
-│  │  ├─basic_air_3_water_0_2
-│  │  ├─basic_air_3_water_0_20
-│  │  ├─basic_air_3_water_0_21
-│  │  ├─basic_air_3_water_0_22
-│  │  ├─basic_air_3_water_0_23
-│  │  ├─basic_air_3_water_0_24
-│  │  ├─basic_air_3_water_0_25
-│  │  ├─basic_air_3_water_0_26
-│  │  ├─basic_air_3_water_0_27
-│  │  ├─basic_air_3_water_0_28
-│  │  ├─basic_air_3_water_0_29
-│  │  ├─basic_air_3_water_0_3
-│  │  ├─basic_air_3_water_0_30
-│  │  ├─basic_air_3_water_0_31
-│  │  ├─basic_air_3_water_0_32
-│  │  ├─basic_air_3_water_0_33
-│  │  ├─basic_air_3_water_0_34
-│  │  ├─basic_air_3_water_0_35
-│  │  ├─basic_air_3_water_0_36
-│  │  ├─basic_air_3_water_0_37
-│  │  ├─basic_air_3_water_0_38
-│  │  ├─basic_air_3_water_0_39
-│  │  ├─basic_air_3_water_0_4
-│  │  ├─basic_air_3_water_0_40
-│  │  ├─basic_air_3_water_0_41
-│  │  ├─basic_air_3_water_0_42
-│  │  ├─basic_air_3_water_0_43
-│  │  ├─basic_air_3_water_0_44
-│  │  ├─basic_air_3_water_0_45
-│  │  ├─basic_air_3_water_0_46
-│  │  ├─basic_air_3_water_0_47
-│  │  ├─basic_air_3_water_0_48
-│  │  ├─basic_air_3_water_0_49
-│  │  ├─basic_air_3_water_0_5
-│  │  ├─basic_air_3_water_0_50
-│  │  ├─basic_air_3_water_0_51
-│  │  ├─basic_air_3_water_0_52
-│  │  ├─basic_air_3_water_0_53
-│  │  ├─basic_air_3_water_0_54
-│  │  ├─basic_air_3_water_0_55
-│  │  ├─basic_air_3_water_0_56
-│  │  ├─basic_air_3_water_0_57
-│  │  ├─basic_air_3_water_0_58
-│  │  ├─basic_air_3_water_0_59
-│  │  ├─basic_air_3_water_0_6
-│  │  ├─basic_air_3_water_0_60
-│  │  ├─basic_air_3_water_0_61
-│  │  ├─basic_air_3_water_0_62
-│  │  ├─basic_air_3_water_0_63
-│  │  ├─basic_air_3_water_0_64
-│  │  ├─basic_air_3_water_0_65
-│  │  ├─basic_air_3_water_0_66
-│  │  ├─basic_air_3_water_0_67
-│  │  ├─basic_air_3_water_0_68
-│  │  ├─basic_air_3_water_0_69
-│  │  ├─basic_air_3_water_0_7
-│  │  ├─basic_air_3_water_0_70
-│  │  ├─basic_air_3_water_0_71
-│  │  ├─basic_air_3_water_0_72
-│  │  ├─basic_air_3_water_0_73
-│  │  ├─basic_air_3_water_0_74
-│  │  ├─basic_air_3_water_0_75
-│  │  ├─basic_air_3_water_0_76
-│  │  ├─basic_air_3_water_0_77
-│  │  ├─basic_air_3_water_0_78
-│  │  ├─basic_air_3_water_0_79
-│  │  ├─basic_air_3_water_0_8
-│  │  ├─basic_air_3_water_0_80
-│  │  ├─basic_air_3_water_0_81
-│  │  ├─basic_air_3_water_0_82
-│  │  ├─basic_air_3_water_0_83
-│  │  ├─basic_air_3_water_0_84
-│  │  ├─basic_air_3_water_0_85
-│  │  ├─basic_air_3_water_0_86
-│  │  ├─basic_air_3_water_0_87
-│  │  ├─basic_air_3_water_0_88
-│  │  ├─basic_air_3_water_0_89
-│  │  ├─basic_air_3_water_0_9
-│  │  ├─basic_air_3_water_0_90
-│  │  ├─basic_air_3_water_0_91
-│  │  ├─basic_air_3_water_0_92
-│  │  ├─basic_air_3_water_0_93
-│  │  ├─basic_air_3_water_0_94
-│  │  ├─basic_air_3_water_0_95
-│  │  ├─basic_air_3_water_0_96
-│  │  ├─basic_air_3_water_0_97
-│  │  ├─basic_air_3_water_0_98
-│  │  ├─basic_air_3_water_0_99
-│  │  └─result
-│  ├─2024-02-14
-│  │  ├─basic_air_0_water_3_1
-│  │  ├─basic_air_0_water_3_10
-│  │  ├─basic_air_0_water_3_11
-│  │  ├─basic_air_0_water_3_12
-│  │  ├─basic_air_0_water_3_13
-│  │  ├─basic_air_0_water_3_14
-│  │  ├─basic_air_0_water_3_15
-│  │  ├─basic_air_0_water_3_2
-│  │  ├─basic_air_0_water_3_3
-│  │  ├─basic_air_0_water_3_4
-│  │  ├─basic_air_0_water_3_5
-│  │  ├─basic_air_0_water_3_6
-│  │  ├─basic_air_0_water_3_7
-│  │  ├─basic_air_0_water_3_8
-│  │  ├─basic_air_0_water_3_9
-│  │  ├─basic_air_3_water_0_1
-│  │  ├─basic_air_3_water_0_10
-│  │  ├─basic_air_3_water_0_100
-│  │  ├─basic_air_3_water_0_101
-│  │  ├─basic_air_3_water_0_102
-│  │  ├─basic_air_3_water_0_103
-│  │  ├─basic_air_3_water_0_104
-│  │  ├─basic_air_3_water_0_105
-│  │  ├─basic_air_3_water_0_106
-│  │  ├─basic_air_3_water_0_107
-│  │  ├─basic_air_3_water_0_108
-│  │  ├─basic_air_3_water_0_109
-│  │  ├─basic_air_3_water_0_11
-│  │  ├─basic_air_3_water_0_110
-│  │  ├─basic_air_3_water_0_111
-│  │  ├─basic_air_3_water_0_112
-│  │  ├─basic_air_3_water_0_12
-│  │  ├─basic_air_3_water_0_13
-│  │  ├─basic_air_3_water_0_14
-│  │  ├─basic_air_3_water_0_15
-│  │  ├─basic_air_3_water_0_16
-│  │  ├─basic_air_3_water_0_17
-│  │  ├─basic_air_3_water_0_18
-│  │  ├─basic_air_3_water_0_19
-│  │  ├─basic_air_3_water_0_2
-│  │  ├─basic_air_3_water_0_20
-│  │  ├─basic_air_3_water_0_21
-│  │  ├─basic_air_3_water_0_22
-│  │  ├─basic_air_3_water_0_23
-│  │  ├─basic_air_3_water_0_24
-│  │  ├─basic_air_3_water_0_25
-│  │  ├─basic_air_3_water_0_26
-│  │  ├─basic_air_3_water_0_27
-│  │  ├─basic_air_3_water_0_28
-│  │  ├─basic_air_3_water_0_29
-│  │  ├─basic_air_3_water_0_3
-│  │  ├─basic_air_3_water_0_30
-│  │  ├─basic_air_3_water_0_31
-│  │  ├─basic_air_3_water_0_32
-│  │  ├─basic_air_3_water_0_33
-│  │  ├─basic_air_3_water_0_34
-│  │  ├─basic_air_3_water_0_35
-│  │  ├─basic_air_3_water_0_36
-│  │  ├─basic_air_3_water_0_37
-│  │  ├─basic_air_3_water_0_38
-│  │  ├─basic_air_3_water_0_39
-│  │  ├─basic_air_3_water_0_4
-│  │  ├─basic_air_3_water_0_40
-│  │  ├─basic_air_3_water_0_41
-│  │  ├─basic_air_3_water_0_42
-│  │  ├─basic_air_3_water_0_43
-│  │  ├─basic_air_3_water_0_44
-│  │  ├─basic_air_3_water_0_45
-│  │  ├─basic_air_3_water_0_46
-│  │  ├─basic_air_3_water_0_47
-│  │  ├─basic_air_3_water_0_48
-│  │  ├─basic_air_3_water_0_49
-│  │  ├─basic_air_3_water_0_5
-│  │  ├─basic_air_3_water_0_50
-│  │  ├─basic_air_3_water_0_51
-│  │  ├─basic_air_3_water_0_52
-│  │  ├─basic_air_3_water_0_53
-│  │  ├─basic_air_3_water_0_54
-│  │  ├─basic_air_3_water_0_55
-│  │  ├─basic_air_3_water_0_56
-│  │  ├─basic_air_3_water_0_57
-│  │  ├─basic_air_3_water_0_58
-│  │  ├─basic_air_3_water_0_59
-│  │  ├─basic_air_3_water_0_6
-│  │  ├─basic_air_3_water_0_60
-│  │  ├─basic_air_3_water_0_61
-│  │  ├─basic_air_3_water_0_62
-│  │  ├─basic_air_3_water_0_63
-│  │  ├─basic_air_3_water_0_64
-│  │  ├─basic_air_3_water_0_65
-│  │  ├─basic_air_3_water_0_66
-│  │  ├─basic_air_3_water_0_67
-│  │  ├─basic_air_3_water_0_68
-│  │  ├─basic_air_3_water_0_69
-│  │  ├─basic_air_3_water_0_7
-│  │  ├─basic_air_3_water_0_70
-│  │  ├─basic_air_3_water_0_71
-│  │  ├─basic_air_3_water_0_72
-│  │  ├─basic_air_3_water_0_73
-│  │  ├─basic_air_3_water_0_74
-│  │  ├─basic_air_3_water_0_75
-│  │  ├─basic_air_3_water_0_76
-│  │  ├─basic_air_3_water_0_77
-│  │  ├─basic_air_3_water_0_78
-│  │  ├─basic_air_3_water_0_79
-│  │  ├─basic_air_3_water_0_8
-│  │  ├─basic_air_3_water_0_80
-│  │  ├─basic_air_3_water_0_81
-│  │  ├─basic_air_3_water_0_82
-│  │  ├─basic_air_3_water_0_83
-│  │  ├─basic_air_3_water_0_84
-│  │  ├─basic_air_3_water_0_85
-│  │  ├─basic_air_3_water_0_86
-│  │  ├─basic_air_3_water_0_87
-│  │  ├─basic_air_3_water_0_88
-│  │  ├─basic_air_3_water_0_89
-│  │  ├─basic_air_3_water_0_9
-│  │  ├─basic_air_3_water_0_90
-│  │  ├─basic_air_3_water_0_91
-│  │  ├─basic_air_3_water_0_92
-│  │  ├─basic_air_3_water_0_93
-│  │  ├─basic_air_3_water_0_94
-│  │  ├─basic_air_3_water_0_95
-│  │  ├─basic_air_3_water_0_96
-│  │  ├─basic_air_3_water_0_97
-│  │  ├─basic_air_3_water_0_98
-│  │  ├─basic_air_3_water_0_99
-│  │  └─result
-│  ├─2024-02-15
-│  │  ├─basic_air_0_water_3_1
-│  │  ├─basic_air_0_water_3_10
-│  │  ├─basic_air_0_water_3_100
-│  │  ├─basic_air_0_water_3_101
-│  │  ├─basic_air_0_water_3_102
-│  │  ├─basic_air_0_water_3_103
-│  │  ├─basic_air_0_water_3_104
-│  │  ├─basic_air_0_water_3_105
-│  │  ├─basic_air_0_water_3_106
-│  │  ├─basic_air_0_water_3_107
-│  │  ├─basic_air_0_water_3_108
-│  │  ├─basic_air_0_water_3_109
-│  │  ├─basic_air_0_water_3_11
-│  │  ├─basic_air_0_water_3_110
-│  │  ├─basic_air_0_water_3_111
-│  │  ├─basic_air_0_water_3_112
-│  │  ├─basic_air_0_water_3_113
-│  │  ├─basic_air_0_water_3_114
-│  │  ├─basic_air_0_water_3_115
-│  │  ├─basic_air_0_water_3_116
-│  │  ├─basic_air_0_water_3_117
-│  │  ├─basic_air_0_water_3_118
-│  │  ├─basic_air_0_water_3_119
-│  │  ├─basic_air_0_water_3_12
-│  │  ├─basic_air_0_water_3_120
-│  │  ├─basic_air_0_water_3_13
-│  │  ├─basic_air_0_water_3_14
-│  │  ├─basic_air_0_water_3_15
-│  │  ├─basic_air_0_water_3_16
-│  │  ├─basic_air_0_water_3_17
-│  │  ├─basic_air_0_water_3_18
-│  │  ├─basic_air_0_water_3_19
-│  │  ├─basic_air_0_water_3_2
-│  │  ├─basic_air_0_water_3_20
-│  │  ├─basic_air_0_water_3_21
-│  │  ├─basic_air_0_water_3_22
-│  │  ├─basic_air_0_water_3_23
-│  │  ├─basic_air_0_water_3_24
-│  │  ├─basic_air_0_water_3_25
-│  │  ├─basic_air_0_water_3_26
-│  │  ├─basic_air_0_water_3_27
-│  │  ├─basic_air_0_water_3_28
-│  │  ├─basic_air_0_water_3_29
-│  │  ├─basic_air_0_water_3_3
-│  │  ├─basic_air_0_water_3_30
-│  │  ├─basic_air_0_water_3_31
-│  │  ├─basic_air_0_water_3_32
-│  │  ├─basic_air_0_water_3_33
-│  │  ├─basic_air_0_water_3_34
-│  │  ├─basic_air_0_water_3_35
-│  │  ├─basic_air_0_water_3_36
-│  │  ├─basic_air_0_water_3_37
-│  │  ├─basic_air_0_water_3_38
-│  │  ├─basic_air_0_water_3_39
-│  │  ├─basic_air_0_water_3_4
-│  │  ├─basic_air_0_water_3_40
-│  │  ├─basic_air_0_water_3_41
-│  │  ├─basic_air_0_water_3_42
-│  │  ├─basic_air_0_water_3_43
-│  │  ├─basic_air_0_water_3_44
-│  │  ├─basic_air_0_water_3_45
-│  │  ├─basic_air_0_water_3_46
-│  │  ├─basic_air_0_water_3_47
-│  │  ├─basic_air_0_water_3_48
-│  │  ├─basic_air_0_water_3_49
-│  │  ├─basic_air_0_water_3_5
-│  │  ├─basic_air_0_water_3_50
-│  │  ├─basic_air_0_water_3_51
-│  │  ├─basic_air_0_water_3_52
-│  │  ├─basic_air_0_water_3_53
-│  │  ├─basic_air_0_water_3_54
-│  │  ├─basic_air_0_water_3_55
-│  │  ├─basic_air_0_water_3_56
-│  │  ├─basic_air_0_water_3_57
-│  │  ├─basic_air_0_water_3_58
-│  │  ├─basic_air_0_water_3_59
-│  │  ├─basic_air_0_water_3_6
-│  │  ├─basic_air_0_water_3_60
-│  │  ├─basic_air_0_water_3_61
-│  │  ├─basic_air_0_water_3_62
-│  │  ├─basic_air_0_water_3_63
-│  │  ├─basic_air_0_water_3_64
-│  │  ├─basic_air_0_water_3_65
-│  │  ├─basic_air_0_water_3_66
-│  │  ├─basic_air_0_water_3_67
-│  │  ├─basic_air_0_water_3_68
-│  │  ├─basic_air_0_water_3_69
-│  │  ├─basic_air_0_water_3_7
-│  │  ├─basic_air_0_water_3_70
-│  │  ├─basic_air_0_water_3_71
-│  │  ├─basic_air_0_water_3_72
-│  │  ├─basic_air_0_water_3_73
-│  │  ├─basic_air_0_water_3_74
-│  │  ├─basic_air_0_water_3_75
-│  │  ├─basic_air_0_water_3_76
-│  │  ├─basic_air_0_water_3_77
-│  │  ├─basic_air_0_water_3_78
-│  │  ├─basic_air_0_water_3_79
-│  │  ├─basic_air_0_water_3_8
-│  │  ├─basic_air_0_water_3_80
-│  │  ├─basic_air_0_water_3_81
-│  │  ├─basic_air_0_water_3_82
-│  │  ├─basic_air_0_water_3_83
-│  │  ├─basic_air_0_water_3_84
-│  │  ├─basic_air_0_water_3_85
-│  │  ├─basic_air_0_water_3_86
-│  │  ├─basic_air_0_water_3_87
-│  │  ├─basic_air_0_water_3_88
-│  │  ├─basic_air_0_water_3_89
-│  │  ├─basic_air_0_water_3_9
-│  │  ├─basic_air_0_water_3_90
-│  │  ├─basic_air_0_water_3_91
-│  │  ├─basic_air_0_water_3_92
-│  │  ├─basic_air_0_water_3_93
-│  │  ├─basic_air_0_water_3_94
-│  │  ├─basic_air_0_water_3_95
-│  │  ├─basic_air_0_water_3_96
-│  │  ├─basic_air_0_water_3_97
-│  │  ├─basic_air_0_water_3_98
-│  │  ├─basic_air_0_water_3_99
-│  │  └─result
-│  ├─2024-02-16
-│  │  ├─basic_air_0_water_3_1
-│  │  ├─basic_air_0_water_3_10
-│  │  ├─basic_air_0_water_3_100
-│  │  ├─basic_air_0_water_3_101
-│  │  ├─basic_air_0_water_3_102
-│  │  ├─basic_air_0_water_3_103
-│  │  ├─basic_air_0_water_3_104
-│  │  ├─basic_air_0_water_3_105
-│  │  ├─basic_air_0_water_3_106
-│  │  ├─basic_air_0_water_3_107
-│  │  ├─basic_air_0_water_3_108
-│  │  ├─basic_air_0_water_3_109
-│  │  ├─basic_air_0_water_3_11
-│  │  ├─basic_air_0_water_3_110
-│  │  ├─basic_air_0_water_3_111
-│  │  ├─basic_air_0_water_3_112
-│  │  ├─basic_air_0_water_3_113
-│  │  ├─basic_air_0_water_3_114
-│  │  ├─basic_air_0_water_3_115
-│  │  ├─basic_air_0_water_3_116
-│  │  ├─basic_air_0_water_3_117
-│  │  ├─basic_air_0_water_3_118
-│  │  ├─basic_air_0_water_3_119
-│  │  ├─basic_air_0_water_3_12
-│  │  ├─basic_air_0_water_3_120
-│  │  ├─basic_air_0_water_3_121
-│  │  ├─basic_air_0_water_3_122
-│  │  ├─basic_air_0_water_3_123
-│  │  ├─basic_air_0_water_3_124
-│  │  ├─basic_air_0_water_3_125
-│  │  ├─basic_air_0_water_3_126
-│  │  ├─basic_air_0_water_3_127
-│  │  ├─basic_air_0_water_3_128
-│  │  ├─basic_air_0_water_3_129
-│  │  ├─basic_air_0_water_3_13
-│  │  ├─basic_air_0_water_3_130
-│  │  ├─basic_air_0_water_3_131
-│  │  ├─basic_air_0_water_3_14
-│  │  ├─basic_air_0_water_3_15
-│  │  ├─basic_air_0_water_3_16
-│  │  ├─basic_air_0_water_3_17
-│  │  ├─basic_air_0_water_3_18
-│  │  ├─basic_air_0_water_3_19
-│  │  ├─basic_air_0_water_3_2
-│  │  ├─basic_air_0_water_3_20
-│  │  ├─basic_air_0_water_3_21
-│  │  ├─basic_air_0_water_3_22
-│  │  ├─basic_air_0_water_3_23
-│  │  ├─basic_air_0_water_3_24
-│  │  ├─basic_air_0_water_3_25
-│  │  ├─basic_air_0_water_3_26
-│  │  ├─basic_air_0_water_3_27
-│  │  ├─basic_air_0_water_3_28
-│  │  ├─basic_air_0_water_3_29
-│  │  ├─basic_air_0_water_3_3
-│  │  ├─basic_air_0_water_3_30
-│  │  ├─basic_air_0_water_3_31
-│  │  ├─basic_air_0_water_3_32
-│  │  ├─basic_air_0_water_3_33
-│  │  ├─basic_air_0_water_3_34
-│  │  ├─basic_air_0_water_3_35
-│  │  ├─basic_air_0_water_3_36
-│  │  ├─basic_air_0_water_3_37
-│  │  ├─basic_air_0_water_3_38
-│  │  ├─basic_air_0_water_3_39
-│  │  ├─basic_air_0_water_3_4
-│  │  ├─basic_air_0_water_3_40
-│  │  ├─basic_air_0_water_3_41
-│  │  ├─basic_air_0_water_3_42
-│  │  ├─basic_air_0_water_3_43
-│  │  ├─basic_air_0_water_3_44
-│  │  ├─basic_air_0_water_3_45
-│  │  ├─basic_air_0_water_3_46
-│  │  ├─basic_air_0_water_3_47
-│  │  ├─basic_air_0_water_3_48
-│  │  ├─basic_air_0_water_3_49
-│  │  ├─basic_air_0_water_3_5
-│  │  ├─basic_air_0_water_3_50
-│  │  ├─basic_air_0_water_3_51
-│  │  ├─basic_air_0_water_3_52
-│  │  ├─basic_air_0_water_3_53
-│  │  ├─basic_air_0_water_3_54
-│  │  ├─basic_air_0_water_3_55
-│  │  ├─basic_air_0_water_3_56
-│  │  ├─basic_air_0_water_3_57
-│  │  ├─basic_air_0_water_3_58
-│  │  ├─basic_air_0_water_3_59
-│  │  ├─basic_air_0_water_3_6
-│  │  ├─basic_air_0_water_3_60
-│  │  ├─basic_air_0_water_3_61
-│  │  ├─basic_air_0_water_3_62
-│  │  ├─basic_air_0_water_3_63
-│  │  ├─basic_air_0_water_3_64
-│  │  ├─basic_air_0_water_3_65
-│  │  ├─basic_air_0_water_3_66
-│  │  ├─basic_air_0_water_3_67
-│  │  ├─basic_air_0_water_3_68
-│  │  ├─basic_air_0_water_3_69
-│  │  ├─basic_air_0_water_3_7
-│  │  ├─basic_air_0_water_3_70
-│  │  ├─basic_air_0_water_3_71
-│  │  ├─basic_air_0_water_3_72
-│  │  ├─basic_air_0_water_3_73
-│  │  ├─basic_air_0_water_3_74
-│  │  ├─basic_air_0_water_3_75
-│  │  ├─basic_air_0_water_3_76
-│  │  ├─basic_air_0_water_3_77
-│  │  ├─basic_air_0_water_3_78
-│  │  ├─basic_air_0_water_3_79
-│  │  ├─basic_air_0_water_3_8
-│  │  ├─basic_air_0_water_3_80
-│  │  ├─basic_air_0_water_3_81
-│  │  ├─basic_air_0_water_3_82
-│  │  ├─basic_air_0_water_3_83
-│  │  ├─basic_air_0_water_3_84
-│  │  ├─basic_air_0_water_3_85
-│  │  ├─basic_air_0_water_3_86
-│  │  ├─basic_air_0_water_3_87
-│  │  ├─basic_air_0_water_3_88
-│  │  ├─basic_air_0_water_3_89
-│  │  ├─basic_air_0_water_3_9
-│  │  ├─basic_air_0_water_3_90
-│  │  ├─basic_air_0_water_3_91
-│  │  ├─basic_air_0_water_3_92
-│  │  ├─basic_air_0_water_3_93
-│  │  ├─basic_air_0_water_3_94
-│  │  ├─basic_air_0_water_3_95
-│  │  ├─basic_air_0_water_3_96
-│  │  ├─basic_air_0_water_3_97
-│  │  ├─basic_air_0_water_3_98
-│  │  ├─basic_air_0_water_3_99
-│  │  └─result
-│  ├─2024-02-17
-│  │  ├─basic_air_0_water_2_1
-│  │  ├─basic_air_0_water_2_10
-│  │  ├─basic_air_0_water_2_11
-│  │  ├─basic_air_0_water_2_12
-│  │  ├─basic_air_0_water_2_13
-│  │  ├─basic_air_0_water_2_14
-│  │  ├─basic_air_0_water_2_15
-│  │  ├─basic_air_0_water_2_16
-│  │  ├─basic_air_0_water_2_17
-│  │  ├─basic_air_0_water_2_18
-│  │  ├─basic_air_0_water_2_19
-│  │  ├─basic_air_0_water_2_2
-│  │  ├─basic_air_0_water_2_20
-│  │  ├─basic_air_0_water_2_21
-│  │  ├─basic_air_0_water_2_22
-│  │  ├─basic_air_0_water_2_23
-│  │  ├─basic_air_0_water_2_24
-│  │  ├─basic_air_0_water_2_25
-│  │  ├─basic_air_0_water_2_26
-│  │  ├─basic_air_0_water_2_27
-│  │  ├─basic_air_0_water_2_28
-│  │  ├─basic_air_0_water_2_29
-│  │  ├─basic_air_0_water_2_3
-│  │  ├─basic_air_0_water_2_30
-│  │  ├─basic_air_0_water_2_31
-│  │  ├─basic_air_0_water_2_32
-│  │  ├─basic_air_0_water_2_33
-│  │  ├─basic_air_0_water_2_34
-│  │  ├─basic_air_0_water_2_35
-│  │  ├─basic_air_0_water_2_36
-│  │  ├─basic_air_0_water_2_37
-│  │  ├─basic_air_0_water_2_38
-│  │  ├─basic_air_0_water_2_39
-│  │  ├─basic_air_0_water_2_4
-│  │  ├─basic_air_0_water_2_40
-│  │  ├─basic_air_0_water_2_41
-│  │  ├─basic_air_0_water_2_42
-│  │  ├─basic_air_0_water_2_43
-│  │  ├─basic_air_0_water_2_44
-│  │  ├─basic_air_0_water_2_45
-│  │  ├─basic_air_0_water_2_46
-│  │  ├─basic_air_0_water_2_47
-│  │  ├─basic_air_0_water_2_48
-│  │  ├─basic_air_0_water_2_49
-│  │  ├─basic_air_0_water_2_5
-│  │  ├─basic_air_0_water_2_50
-│  │  ├─basic_air_0_water_2_51
-│  │  ├─basic_air_0_water_2_52
-│  │  ├─basic_air_0_water_2_53
-│  │  ├─basic_air_0_water_2_54
-│  │  ├─basic_air_0_water_2_55
-│  │  ├─basic_air_0_water_2_56
-│  │  ├─basic_air_0_water_2_57
-│  │  ├─basic_air_0_water_2_58
-│  │  ├─basic_air_0_water_2_59
-│  │  ├─basic_air_0_water_2_6
-│  │  ├─basic_air_0_water_2_60
-│  │  ├─basic_air_0_water_2_61
-│  │  ├─basic_air_0_water_2_62
-│  │  ├─basic_air_0_water_2_63
-│  │  ├─basic_air_0_water_2_64
-│  │  ├─basic_air_0_water_2_65
-│  │  ├─basic_air_0_water_2_66
-│  │  ├─basic_air_0_water_2_67
-│  │  ├─basic_air_0_water_2_68
-│  │  ├─basic_air_0_water_2_69
-│  │  ├─basic_air_0_water_2_7
-│  │  ├─basic_air_0_water_2_70
-│  │  ├─basic_air_0_water_2_71
-│  │  ├─basic_air_0_water_2_72
-│  │  ├─basic_air_0_water_2_73
-│  │  ├─basic_air_0_water_2_74
-│  │  ├─basic_air_0_water_2_75
-│  │  ├─basic_air_0_water_2_76
-│  │  ├─basic_air_0_water_2_77
-│  │  ├─basic_air_0_water_2_78
-│  │  ├─basic_air_0_water_2_79
-│  │  ├─basic_air_0_water_2_8
-│  │  ├─basic_air_0_water_2_9
-│  │  ├─basic_air_0_water_3_1
-│  │  ├─basic_air_0_water_3_2
-│  │  └─result
-│  ├─2024-02-18
-│  │  ├─basic_air_0_water_2_1
-│  │  ├─basic_air_0_water_2_10
-│  │  ├─basic_air_0_water_2_100
-│  │  ├─basic_air_0_water_2_101
-│  │  ├─basic_air_0_water_2_102
-│  │  ├─basic_air_0_water_2_103
-│  │  ├─basic_air_0_water_2_104
-│  │  ├─basic_air_0_water_2_105
-│  │  ├─basic_air_0_water_2_106
-│  │  ├─basic_air_0_water_2_107
-│  │  ├─basic_air_0_water_2_108
-│  │  ├─basic_air_0_water_2_109
-│  │  ├─basic_air_0_water_2_11
-│  │  ├─basic_air_0_water_2_110
-│  │  ├─basic_air_0_water_2_111
-│  │  ├─basic_air_0_water_2_112
-│  │  ├─basic_air_0_water_2_113
-│  │  ├─basic_air_0_water_2_114
-│  │  ├─basic_air_0_water_2_115
-│  │  ├─basic_air_0_water_2_116
-│  │  ├─basic_air_0_water_2_117
-│  │  ├─basic_air_0_water_2_118
-│  │  ├─basic_air_0_water_2_119
-│  │  ├─basic_air_0_water_2_12
-│  │  ├─basic_air_0_water_2_120
-│  │  ├─basic_air_0_water_2_121
-│  │  ├─basic_air_0_water_2_122
-│  │  ├─basic_air_0_water_2_123
-│  │  ├─basic_air_0_water_2_124
-│  │  ├─basic_air_0_water_2_125
-│  │  ├─basic_air_0_water_2_126
-│  │  ├─basic_air_0_water_2_127
-│  │  ├─basic_air_0_water_2_128
-│  │  ├─basic_air_0_water_2_129
-│  │  ├─basic_air_0_water_2_13
-│  │  ├─basic_air_0_water_2_130
-│  │  ├─basic_air_0_water_2_131
-│  │  ├─basic_air_0_water_2_14
-│  │  ├─basic_air_0_water_2_15
-│  │  ├─basic_air_0_water_2_16
-│  │  ├─basic_air_0_water_2_17
-│  │  ├─basic_air_0_water_2_18
-│  │  ├─basic_air_0_water_2_19
-│  │  ├─basic_air_0_water_2_2
-│  │  ├─basic_air_0_water_2_20
-│  │  ├─basic_air_0_water_2_21
-│  │  ├─basic_air_0_water_2_22
-│  │  ├─basic_air_0_water_2_23
-│  │  ├─basic_air_0_water_2_24
-│  │  ├─basic_air_0_water_2_25
-│  │  ├─basic_air_0_water_2_26
-│  │  ├─basic_air_0_water_2_27
-│  │  ├─basic_air_0_water_2_28
-│  │  ├─basic_air_0_water_2_29
-│  │  ├─basic_air_0_water_2_3
-│  │  ├─basic_air_0_water_2_30
-│  │  ├─basic_air_0_water_2_31
-│  │  ├─basic_air_0_water_2_32
-│  │  ├─basic_air_0_water_2_33
-│  │  ├─basic_air_0_water_2_34
-│  │  ├─basic_air_0_water_2_35
-│  │  ├─basic_air_0_water_2_36
-│  │  ├─basic_air_0_water_2_37
-│  │  ├─basic_air_0_water_2_38
-│  │  ├─basic_air_0_water_2_39
-│  │  ├─basic_air_0_water_2_4
-│  │  ├─basic_air_0_water_2_40
-│  │  ├─basic_air_0_water_2_41
-│  │  ├─basic_air_0_water_2_42
-│  │  ├─basic_air_0_water_2_43
-│  │  ├─basic_air_0_water_2_44
-│  │  ├─basic_air_0_water_2_45
-│  │  ├─basic_air_0_water_2_46
-│  │  ├─basic_air_0_water_2_47
-│  │  ├─basic_air_0_water_2_48
-│  │  ├─basic_air_0_water_2_49
-│  │  ├─basic_air_0_water_2_5
-│  │  ├─basic_air_0_water_2_50
-│  │  ├─basic_air_0_water_2_51
-│  │  ├─basic_air_0_water_2_52
-│  │  ├─basic_air_0_water_2_53
-│  │  ├─basic_air_0_water_2_54
-│  │  ├─basic_air_0_water_2_55
-│  │  ├─basic_air_0_water_2_56
-│  │  ├─basic_air_0_water_2_57
-│  │  ├─basic_air_0_water_2_58
-│  │  ├─basic_air_0_water_2_59
-│  │  ├─basic_air_0_water_2_6
-│  │  ├─basic_air_0_water_2_60
-│  │  ├─basic_air_0_water_2_61
-│  │  ├─basic_air_0_water_2_62
-│  │  ├─basic_air_0_water_2_63
-│  │  ├─basic_air_0_water_2_64
-│  │  ├─basic_air_0_water_2_65
-│  │  ├─basic_air_0_water_2_66
-│  │  ├─basic_air_0_water_2_67
-│  │  ├─basic_air_0_water_2_68
-│  │  ├─basic_air_0_water_2_69
-│  │  ├─basic_air_0_water_2_7
-│  │  ├─basic_air_0_water_2_70
-│  │  ├─basic_air_0_water_2_71
-│  │  ├─basic_air_0_water_2_72
-│  │  ├─basic_air_0_water_2_73
-│  │  ├─basic_air_0_water_2_74
-│  │  ├─basic_air_0_water_2_75
-│  │  ├─basic_air_0_water_2_76
-│  │  ├─basic_air_0_water_2_77
-│  │  ├─basic_air_0_water_2_78
-│  │  ├─basic_air_0_water_2_79
-│  │  ├─basic_air_0_water_2_8
-│  │  ├─basic_air_0_water_2_80
-│  │  ├─basic_air_0_water_2_81
-│  │  ├─basic_air_0_water_2_82
-│  │  ├─basic_air_0_water_2_83
-│  │  ├─basic_air_0_water_2_84
-│  │  ├─basic_air_0_water_2_85
-│  │  ├─basic_air_0_water_2_86
-│  │  ├─basic_air_0_water_2_87
-│  │  ├─basic_air_0_water_2_88
-│  │  ├─basic_air_0_water_2_89
-│  │  ├─basic_air_0_water_2_9
-│  │  ├─basic_air_0_water_2_90
-│  │  ├─basic_air_0_water_2_91
-│  │  ├─basic_air_0_water_2_92
-│  │  ├─basic_air_0_water_2_93
-│  │  ├─basic_air_0_water_2_94
-│  │  ├─basic_air_0_water_2_95
-│  │  ├─basic_air_0_water_2_96
-│  │  ├─basic_air_0_water_2_97
-│  │  ├─basic_air_0_water_2_98
-│  │  ├─basic_air_0_water_2_99
-│  │  └─result
-│  └─2024-02-19
-│      ├─basic_air_0_water_2_1
-│      └─basic_air_0_water_2_2
-├─figure
-│  ├─air0_water2
-│  ├─air0_water3
-│  ├─air1_water2
-│  ├─air2_water1
-│  └─air3_water0
-└─__pycache__
+### AutoGprmax
+
+Originally, gprMax was designed to facilitate research on the propagation characteristics of electromagnetic waves in geological environments, focusing on detailed simulations of complete propagation processes.
+
+For example, it supports simulations of road pathologies in 2D and 3D GPR forward models, analyzing the radar reflection characteristics of pathologies and the spatial propagation characteristics of GPR waves, accumulating theoretical experience for GPR research in road cavity detection.
+
+As machine learning and deep learning technologies for GPR image interpretation have flourished, many researchers have started using gprMax to simulate road structures, setting various road structure parameters, radar parameters, and forward simulation parameters to generate different GPR simulation images for network training datasets. However, gprMax currently only supports single operations. If there is a need to generate a batch of different road condition GPR simulation images, it requires manual adjustments to the parameters in the `.in` files, which is highly inefficient and tedious.
+
+**AutoGprmax** was developed to address the challenge of rapidly and efficiently batch-creating complex feature images of road cavity pathologies using gprMax. Building on gprMax software, it wraps a set of Python scripts that allow you to adjust a series of parameters (mostly based on the .in file construction method used by gprMax, including basic road physical model parameters and randomly generated parameters for road cavities such as medium, quantity, diameter, and shape). With **AutoGprmax**, you can establish a complete physical model of a road area, randomly inserting cavities of various materials (inflated or water-filled), shapes (circular or rectangular), and controlling their relative random distribution within a limited time and road space range. This tool enables the generation of B-scan images that reflect hyperbolic features of cavities at various depths, quantities, and relative positions.
+
+**Key Features of AutoGprmax:**
+
+- AutoGprmax currently only supports the construction of datasets for road cavity pathologies.
+- AutoGprmax is controlled via the command line.
+- AutoGprmax can be used offline.
+- AutoGprmax defaults to using CUDA drivers for simulations, requiring at least one NVIDIA parallel computing card.
+- AutoGprmax has not specifically optimized GPU memory usage, **so the utilization is close to 100%**.
+
+**Generation Speed**
+
+- According to tests conducted by the developer, AutoGprmax's dataset generation speeds are approximately $$136$$ images/day with an `RTX 3050ti`, $$236$$ images/day with an `RTX 2070`, and $$336$$ images/day with an `RTX 3060`.
+- The test conditions were: $$120$$ scans per single B-scan image, scanning step lengths of $$0.0025$$ meters for the $$x, y, z$$ axes, and a scanning time window of $$32 \times 10^{-9}$$ seconds.
+
+## Environment Setup
+
+**AutoGprmax requires the following runtime environment:**
+
+- Miniconda3
+- Python version 3.9.0
+- gprMax version 3.1.6
+- pycuda-2021.1+cuda115
+- NVIDIA (R) CUDA Compiler Driver: CUDA compilation tools, release 11.5, V11.5.50
+
+## How to Use AutoGprmax
+
+The parameters you need to configure are stored in the `config.py` file. You only need to modify the content of the `config.py` file to customize your own road void dataset without changing the specific source code. The main content is as follows:
+
+```python
+AIR_CAVITY_NUM : (int)
+WATER_CAVITY_NUM : (int)
+GENERATE_MODE : (string)
+ASCAN_TIMES : (int)
+TIME_WINDOW : (float)
+DX : (float)
+DY : (float)
+DZ : (float)
+TEXT_INTACT_ROAD : (string)
+TEXT_GEO : (string)
+```
+
+Here is a step-by-step guide:
+
+**First, set the road model parameters for your dataset:**
+
+Remember that voids are generated within a defect-free road structure. A complete and ideal physical model of a road typically includes layers such as the soilbase, concrete, asphalt, and free_space. Each layer has different spatial ranges, electrical constants, and names. Additionally, when using gprMax, you need to configure the complete spatial domain, spatial step size, types of excitation signal waveforms, and more, in the road model (refer to the `.in` file in gprMax). You need to write this information into the `TEXT_INTACT_ROAD` string. Customize your physical model by modifying the following example. In subsequent random void generation, these model parameters will never change; they will be the foundation of your simulation modeling. `DX`, `DY`, `DZ`, and `TIME_WINDOW` need to be specified separately:
+
+```python
+TEXT_INTACT_ROAD = ("#domain: 4.00 1.40 0.0025\n"
+                f"#dx_dy_dz: {DX} {DY} {DZ}\n"
+                f"#time_window: {TIME_WINDOW}\n"
+                "#waveform: ricker 1.0 600e6 my_ricker\n"
+                "#hertzian_dipole: z 0.0875 1.305 0 my_ricker\n"
+                "#rx: 0.1125 1.305 0\n"
+                "#src_steps: 0.031 0.0 0\n"
+                "#rx_steps: 0.031 0.0 0\n"  
+                "#material: 4 0.005 1 0 asphalt\n"   
+                "#material: 9 0.05 1 0 concrete\n"
+                "#material: 12 0.1 1 0 soilbase\n"
+                "#material: 81 0.03 1 0 water\n"
+                "#box: 0.00 0.00 0.00 4.00 1.00 0.0025 soilbase\n"
+                "#box: 0.00 1.00 0.00 4.00 1.15 0.0025 concrete\n"
+                "#box: 0.00 1.15 0.00 4.00 1.30 0.0025
+
+ asphalt\n"
+                "#box: 0.00 1.30 0.00 4.00 1.40 0.0025 free_space\n")
+
+GENERATE_MODE = 'scan'
+TIME_WINDOW = 32e-9
+DX = 0.0025
+DY = 0.0025
+DZ = 0.0025
+```
+
+**Next, determine the characteristics of the cavities you want to generate:**
+
+In AutoGprmax, you initially need to determine the type and quantity of voids to be generated. The software supports the random creation of any number of water-filled or air-filled voids, as long as the total number is less than three. To specify the number of water-filled and air-filled voids respectively, adjust the following parameters (In subsequent operations, you will also need to specify `AIR_CAVITY_NUM` and `WATER_CAVITY_NUM` when running the `run.bat` file. Therefore, the modifications made in the `config.py` file serve only as default values when the required parameters are not inputted in the `run.bat`. This ensures that your system has predefined settings to fall back on in case the necessary parameters are omitted during the execution of the batch file, maintaining the continuity and reliability of your simulation or modeling process.):
+
+```python
+AIR_CAVITY_NUM = 1
+WATER_CAVITY_NUM = 1
+```
+
+Road voids are typically distributed within a range of 0.3 to 1 meter below the ground surface, known as the soilbase. When using AutoGprmax, it is recommended that you set the spatial range for the random generation of void models based on this fact. This ensures that voids are not incorrectly generated at too shallow or too deep locations. To define the spatial range for the random generation of voids, modify the following dictionary. The keys of the dictionary include the diagonal coordinates of the generation range space and the maximum and minimum values of the void radius:
+
+```python
+RANDOM_PARA = {'x1': 0.4, 'y1': 0.35, 'z1': 0, 'x2': 3.6, 'y2': 0.7, 'z2': 0.0025, 'r_min': 0.025, 'r_max': 0.05}
+```
+
+**Then, customize the preprocessing operations for drawing B-scan images:**
+
+To generate a single B-scan image with AutoGprmax, it first produces several A-scan (n).out scan result files along a certain line, i.e., the number of scans, which you can specify. After completing multiple A-scans, AutoGprmax merges them into an Ascan_merged.out file, and the B-scan image is then created from this merged file. Generally, the higher the number of scans, the higher the resolution of the resulting B-scan image, but the generation time will also increase accordingly.
+
+In the process of going from the Ascan_merged.out file to drawing the B-scan image, you can specify your own B-scan image preprocessing methods. These methods often need to be implemented using array-based Python algorithms. AutoGprmax comes with exponential gain and median filter algorithms. You can select the filtering method by modifying the `PLOT_FILTER` parameter, including 'e', 'f', 'ef', 'fe', 'ee', 'eef', 'efe', 'fee'. Here, 'e' stands for the exponential gain algorithm, and 'f' stands for the median filter algorithm. Their combinations represent the sequence and number of filter applications.
+
+```python
+PLOT_FILTER = 'fee'
+```
+
+> For example:
+>
+> 'ef' applies the exponential gain algorithm first, followed by the median filter.
+>
+> 'fe' applies the median filter first, followed by the exponential gain algorithm.
+>
+> 'eef' applies the exponential gain algorithm twice, followed by the median filter.
+
+**Finally, run AutoGprmax in the background for a while, and you will have completed a batch generation:**
+
+Before running AutoGprmax, it is essential to specify the number of A-scan lines for a single image. This is typically calculated based on the length of the road model you have set and the spatial step size:
+
+```python
+ASCAN_TIMES = 120
+```
+
+After setting the number of A-scan lines for a single image in AutoGprmax, the next step is to specify the generation mode. AutoGprmax supports three operational modes, which can be modified through the `GENERATE_MODE` parameter:
+
+```python
+GENERATE_MODE = 'scan'
+```
+
+- 'geo' mode is only used to verify that the holes you have generated are correct. Each run will generate a `*.vti` file called `basic.vti` that you can open and inspect with ParaView.
+- In the 'scan' mode, you are empowered to generate B-scan images entirely from scratch. This is achieved by compiling data from multiple A-scan measurements into a single, unified file. The B-scan image is then meticulously rendered based on the data contained within the `Ascan_merged.out` file.
+- The 'plot' mode is specifically designed for scenarios where you have already generated the Ascan_merged.out file. In such cases, you can utilize this mode to directly draw the B-scan image based on the data from the Ascan_merged.out file.
+
+**AutoGprmax** operates using command-line methods and includes a batch file for Windows systems named `run.bat`. If you are not using a Windows system, you can construct your own script file, like a shell script, based on the contents of the `run.bat` file.
+
+```bash
+run.bat [air_num] [water_num] [times]
+```
+
+`air_num`, `water_num`, and `times` respectively represent the number of air-filled cavities, water-filled cavities, and the total number of images to generate. Press Enter, and the script will run automatically; just leave it running in the background. For example: `run.bat 1 1 100` (1 air-filled cavity, 1 water-filled cavity, total 100 images generated)
+
+If you see this interface, it means the run was successful!
+
+<img src="C:\Users\NIEZS\AppData\Roaming\Typora\typora-user-images\image-20240714225321328.png" alt="image-20240714225321328" style="zoom: 67%;" />
+
+**In addition to this, AutoGprmax has built-in tools for automatically organizing and cropping the generated image files:**
+
+- Running the `file.py` script enables you to calculate various metrics of the dataset and organize all successfully generated images into a unified folder named `\figure`.
+- Executing the `plot.py` script allows you to crop images generated by gprMax that include axes and borders, and then consolidate all the processed images into another folder named `\processed_figure`. This helps to minimize the interference of irrelevant factors when training models.
+- You have the flexibility to modify these two scripts to tailor your own statistical methods and image preprocessing techniques.
+
+```bash
+python file.py
+python plot.py
+```
+
+## Prospects
+
+- This script is constructed based on actual engineering applications and is open-sourced only for communication and reference. AutoGprmax has relatively simple functions, and the writing process was added step by step according to actual needs, lacking systematic and clarity, and there are also many redundant parts. I hope everyone understands and is welcome to make suggestions for improvement.
+- The code will generate redundant `des` files. The purpose of this file is mainly to generate a file that describes the relevant void information through text each time a road void model is generated, to avoid the trouble of opening Paraview to check the correctness of the model every time. However, due to the problem of code redundancy structure, this function currently has errors and needs to be improved.
