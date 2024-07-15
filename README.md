@@ -57,8 +57,8 @@ As machine learning and deep learning technologies for GPR image interpretation 
 
 **Generation Speed**
 
-- According to tests conducted by the developer, AutoGprmax's dataset generation speeds are approximately $$136$$ images/day with an `RTX 3050ti`, $$236$$ images/day with an `RTX 2070`, and $$336$$ images/day with an `RTX 3060`.
-- The test conditions were: $$120$$ scans per single B-scan image, scanning step lengths of $$0.0025$$ meters for the $$x, y, z$$ axes, and a scanning time window of $$32 \times 10^{-9}$$ seconds.
+- According to tests conducted by the developer, AutoGprmax's dataset generation speeds are approximately 136 images/day with an `RTX 3050ti`, 236 images/day with an `RTX 2070`, and 336 images/day with an `RTX 3060`.
+- The test conditions were: 120 scans per single B-scan image, scanning step lengths of 0.0025 meters for the x, y, z axes, and a scanning time window of 32x10^{-9} seconds.
 
 ## Environment Setup
 
@@ -181,7 +181,7 @@ run.bat [air_num] [water_num] [times]
 
 If you see this interface, it means the run was successful!
 
-<img src="C:\Users\NIEZS\AppData\Roaming\Typora\typora-user-images\image-20240714225321328.png" alt="image-20240714225321328" style="zoom: 67%;" />
+<img src="https://cdn.jsdelivr.net/gh/niezishan/MyPic/img/image-20240715145049378.png" alt="image-20240715145049378" style="zoom:67%;" />
 
 **In addition to this, AutoGprmax has built-in tools for automatically organizing and cropping the generated image files:**
 
