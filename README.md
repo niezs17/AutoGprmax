@@ -177,10 +177,6 @@ run.bat [air_num] [water_num] [times]
 
 `air_num`, `water_num`, and `times` respectively represent the number of air-filled cavities, water-filled cavities, and the total number of images to generate. Press Enter, and the script will run automatically; just leave it running in the background. For example: `run.bat 1 1 100` (1 air-filled cavity, 1 water-filled cavity, total 100 images generated)
 
-If you see this interface, it means the run was successful!
-
-<img src="https://cdn.jsdelivr.net/gh/niezishan/MyPic/img/image-20240715145049378.png" alt="image-20240715145049378" style="zoom:67%;" />
-
 **In addition to this, AutoGprmax has built-in tools for automatically organizing and cropping the generated image files:v:**
 
 - Running the `file.py` script enables you to calculate various metrics of the dataset and organize all successfully generated images into a unified folder named `\figure`.
